@@ -30,5 +30,10 @@ module BusRoutes
 
     # Do not swallow errors in after_commit/after_rollback callbacks.
     config.active_record.raise_in_transactional_callbacks = true
+    
+    # Prevent the generation of routes when generating controller actions
+    config.generators do |g|
+      g.skip_routes true
+    end
   end
 end

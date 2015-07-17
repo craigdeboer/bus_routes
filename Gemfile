@@ -15,7 +15,7 @@ gem 'uglifier', '>= 1.3.0'
 gem 'coffee-rails', '~> 4.1.0'
 # See https://github.com/sstephenson/execjs#readme for more supported runtimes
 # gem 'therubyracer', platforms: :ruby
-
+gem 'simple_form', '~> 3.1.0'
 # Use jquery as the JavaScript library
 gem 'jquery-rails'
 # Build JSON APIs with ease. Read more: https://github.com/rails/jbuilder
@@ -31,6 +31,15 @@ gem 'sdoc', '~> 0.4.0', group: :doc
 
 # Use Capistrano for deployment
 # gem 'capistrano-rails', group: :development
+group :test do 
+	gem 'factory_girl_rails', '~> 4.5.0'
+	gem 'capybara', '~> 2.4.4'
+	gem 'selenium-webdriver', '~> 2.44.0'
+	gem 'faker', '~> 1.4.3'
+	gem 'chromedriver-helper'
+	gem 'database_cleaner'
+	gem 'launchy'
+end
 
 group :development, :test do
 	gem 'rspec-rails', '~> 3.3.3'

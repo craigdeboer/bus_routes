@@ -1,0 +1,12 @@
+<%= simple_form_for @student do |f| %>
+  <%= f.input :first_name, label: "First Name" %>
+  <%= f.input :last_name, label: "Last Name" %>
+  <%= f.input :school %>
+  <%= f.input :grade %>
+  <%= f.input :phone, label: "Phone Number" %>
+  <%= f.input :email %>
+  <%= f.input :street_address, label: "Street Address" %>
+  <%= f.input :city %>
+  <%= f.input :postal_code, label: "Postal Code" %>
+  <%= f.submit %>
+<% end %>
