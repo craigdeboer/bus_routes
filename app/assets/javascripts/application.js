@@ -15,3 +15,16 @@
 //= require angular/angular
 //= require_tree .
 var busRoutesApp = angular.module('busRoutesApp', []);
+
+busRoutesApp.controller('StudentsListCtrl', function ($scope) {
+  $scope.students = [
+    {'first_name': 'Craig',
+     'last_name': 'Deboer',
+     'school': 'Surrey High'}
+  ];
+  $scope.addNewStudent = function () {
+    $scope.students.push($scope.NewStudent);
+    $scope.NewStudent = {};
+  };
+});
+

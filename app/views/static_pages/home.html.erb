@@ -1,11 +1,26 @@
-<div ng-app="busRoutesApp">
-  <div class="panel panel-success">
-    <div class="panel-body">
-       <form class="form-inline">
-         <div class="form-group">
-           <input class="form-control" type="text" placeholder="Enter your name" autofocus ng-model="name">
-         </div>
-       </form>
+<div class="container-fluid" ng-app="busRoutesApp">
+  <div class="panel panel-success" ng-controller="StudentsListCtrl">
+    <div class="panel-body col-md-4">
+      <form ng-submit="addNewStudent()">
+        <div class="form-group">
+          <input class="form-control" type="text" placeholder="First Name" ng-model="NewStudent.first_name">
+          <input class="form-control" type="text" placeholder="Last Name" ng-model="NewStudent.last_name">
+          <input class="form-control" type="text" placeholder="School" ng-model="NewStudent.school">
+          <input class="form-control" type="text" placeholder="Grade" ng-model="NewStudent.grade">
+          <input class="form-control" type="text" placeholder="Phone Number" ng-model="NewStudent.phone">
+          <input class="form-control" type="text" placeholder="Email Address" ng-model="NewStudent.email">
+          <input class="form-control" type="text" placeholder="Street Address" ng-model="NewStudent.street_address">
+          <input class="form-control" type="text" placeholder="City" ng-model="NewStudent.city">
+          <input class="form-control" type="text" placeholder="Postal Code" ng-model="NewStudent.postal_code">
+          <input type="submit" value="Add New Student">
+        </div>
+      </form>
+    </div>
+    <div class="col-md-12">
+      <ul>
+        <li ng-repeat="student in students">
+          {{student.first_name}} {{student.last_name}}
+        </li>
     </div>
   </div>
 </div>
