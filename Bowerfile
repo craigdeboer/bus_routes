@@ -3,3 +3,4 @@
 
 asset 'bootstrap-sass-official'
 asset 'angular'
+asset 'angular-resource'
