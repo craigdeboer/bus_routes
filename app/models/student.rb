@@ -9,4 +9,13 @@ class Student < ActiveRecord::Base
   validates :street_address, presence: true
   validates :city, presence: true
   validates :postal_code, presence: true
+
+  geocoded_by :full_address
+  after_validation :geocode, if: :street_address_changed?
+
+  private
+
+  def full_address
+    address = [self.street_address, self.city, "BC", "Canada"].join(', ')
+  end
 end
