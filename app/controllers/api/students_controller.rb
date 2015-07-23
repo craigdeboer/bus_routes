@@ -14,8 +14,11 @@ module Api
 
     def create
       student = Student.new(student_params)
-      student.save
-      render json: student, status: 201
+      if student.save
+        render json: student, status: 201
+      else
+        render json: student.errors.full_messages
+      end
     end
 
     def edit
@@ -25,7 +28,6 @@ module Api
     end
 
     def destroy
-      byebug
       student = Student.find(params[:id])
       student.destroy
       render nothing: true, status: 201
