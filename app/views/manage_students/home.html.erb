@@ -1,7 +1,8 @@
 <div class="container-fluid" ng-app="busRoutesApp">
   <div class="panel panel-success" ng-controller="StudentsListCtrl">
     <div class="panel-body col-md-4">
-      <form ng-submit="addNewStudent()">
+      <button ng-hide="formDisplay" ng-click="showForm()">Add A New Student</button>
+      <form ng-show="formDisplay" ng-submit="addNewStudent()">
         <div class="form-group">
           <input class="form-control" type="text" placeholder="First Name" ng-model="NewStudent.first_name">
           <input class="form-control" type="text" placeholder="Last Name" ng-model="NewStudent.last_name">
@@ -15,8 +16,20 @@
           <input type="submit" value="Add New Student">
         </div>
       </form>
+      <button ng-show="formDisplay" ng-click="hideForm()">Finished Adding Students</button>
     </div>
     <div class="col-md-12">
+      FILTERS:
+      <select ng-model="School"> 
+        <option value="" default selected>All Schools</option>
+        <option value="Surrey High">Surrey High</option>
+        <option value="Langley Elementary">Langley Elementary</option>
+      </select>
+      <select ng-model="City" >
+        <option value="" default selected>All Cities</option>
+        <option value="Surrey">Surrey</option>
+        <option value="Langley">Langley</option>
+      </select>
       <table>
         <tr> 
           <th>First Name</th>
@@ -29,7 +42,7 @@
           <th>City</th>
           <th>Postal Code</th>
         </tr>
-        <tr ng-repeat="student in students">
+        <tr ng-repeat="student in students | filter:School |filter:City">
           <td>{{student.first_name}}</td>
           <td>{{student.last_name}}</td>
           <td>{{student.school}}</td>

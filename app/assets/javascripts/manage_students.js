@@ -11,6 +11,7 @@ busRoutesApp.factory('Student', function($resource) {
 });
 
 busRoutesApp.controller('StudentsListCtrl', function ($scope, Student) {
+  $scope.formDisplay = false;
   $scope.students = Student.query(); 
   $scope.addNewStudent = function () {
     student = Student.save($scope.NewStudent);
@@ -21,5 +22,11 @@ busRoutesApp.controller('StudentsListCtrl', function ($scope, Student) {
     student = $scope.students[index];
     student.$remove();
     $scope.students.splice(index, 1);
+  };
+  $scope.showForm = function () {
+    $scope.formDisplay = true;
+  };
+  $scope.hideForm = function () {
+    $scope.formDisplay = false;
   };
 });
