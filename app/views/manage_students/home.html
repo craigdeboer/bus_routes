@@ -31,6 +31,7 @@
         <option value="Langley">Langley</option>
       </select>
       <p>
+<!-- The results variable is populated by the ng-repeat directive below -->
         <ng-pluralize 
             count="results.length"
             when="{'0': 'No students match the selected filter criteria',
@@ -50,6 +51,7 @@
           <th>City</th>
           <th>Postal Code</th>
         </tr>
+<!-- The 'as results' allows the result of the filter to be stored in a variable called results so the information can be used elsewhere. In this case it is used to display the number of students that meet the user's filter criteria. -->
         <tr ng-repeat="student in students | filter:School |filter:City as results">
           <td>{{student.first_name}}</td>
           <td>{{student.last_name}}</td>
@@ -66,6 +68,9 @@
     </div>
   </div>
   <div class="col-md-12" ng-controller="MapCtrl">
+    <input class="form-control" ng-click="getLatLng()" type="text" ng-model="origin">
+    <input class="form-control" id="finish" type="text" ng-model="destination">
+
     <div id="map-canvas">
     </div>
   </div>

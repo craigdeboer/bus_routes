@@ -41,25 +41,66 @@ busRoutesApp.controller('MapCtrl', function ($scope, Student) {
   var students = Student.query(function() {
     $scope.students = students;
     setMarkers();
+    calcRoute();
   });
   $scope.testCase = [];
+  $scope.lastLatLng = "";
+  $scope.origin = "Start";
+  $scope.destination = "Destination";
+
+  var directionsDisplay1;
+  var directionsDisplay2;
+  var directionsService = new google.maps.DirectionsService();
+
   function initialize() {
+    directionsDisplay1 = new google.maps.DirectionsRenderer({draggable: true});
+    directionsDisplay2 = new google.maps.DirectionsRenderer({draggable: true});
     var mapOptions = {
       center: { lat: 49.1387, lng: -122.8218 },
       zoom: 13
     };
     $scope.map = new google.maps.Map(document.getElementById("map-canvas"), mapOptions);
+
+    $scope.map.addListener('click', function(event) {
+      $scope.lastLatLng = event.latLng
+      alert(event.latLng);
+      insertMarker(event.latLng);
+    });
     marker = new google.maps.Marker({
       position: new google.maps.LatLng(49.170385, -122.796939),
       map: $scope.map,
       label: 'A',
       icon: '/assets/blue_MarkerA.png',
-      animation: google.maps.Animation.BOUNCE,
       title: "Surrey High"
     });
+    directionsDisplay1.setMap($scope.map);
+    directionsDisplay2.setMap($scope.map);
   };
   google.maps.event.addDomListener(window, 'load', initialize);
+  $scope.getLatLng = function() {
+    $scope.origin = $scope.lastLatLng;
+  };
+  
 
+  /*$("#start").focusin(function() {
+    $scope.map.addListener('click', function(event) {
+      alert(event.latLng);
+      $("#start").val(event.latLng); 
+    });
+  });
+  $("#finish").focus(function() {
+    $scope.map.addListener('click', function(event) {
+      alert(event.latLng);
+      $("#finish").val(event.latLng); 
+    });
+  });*/
+  insertMarker = function(latLng) {
+    marker = new google.maps.Marker({
+      position: latLng,
+      map: $scope.map,
+      title: "Way Point"
+    });
+  };
   setMarkers = function () {
     angular.forEach($scope.students, function(student) {
      $scope.testCase.push(student.latitude);
@@ -71,6 +112,20 @@ busRoutesApp.controller('MapCtrl', function ($scope, Student) {
      });
     });
   };   
+  calcRoute = function () {
+    var start = new google.maps.LatLng(49.17705, -122.8588);
+    var end = new google.maps.LatLng(49.1628, -122.7985);
+    var request = {
+      origin:start,
+      destination:end,
+      travelMode: google.maps.TravelMode.DRIVING
+    };
+    directionsService.route(request, function(result, status) {
+      if (status == google.maps.DirectionsStatus.OK) {
+        directionsDisplay1.setDirections(result);
+      }
+    });
+  };
 });
 
 
