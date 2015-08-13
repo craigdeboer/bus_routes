@@ -5,6 +5,9 @@ Rails.application.routes.draw do
     resources :students
   end
   get 'manage_students' => 'manage_students#home'
+  get 'import_students/new' => 'import_students#new', as: 'new_import'
+  post 'import_langley_students' => 'import_students#langley_import', as: 'langley_import'
+  post 'import_standard_students' => 'import_students#standard_import', as: 'standard_import'
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
 
