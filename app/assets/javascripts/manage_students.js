@@ -1,35 +1,54 @@
-// Place all the behaviors and hooks related to the matching controller here.
-// All this logic will automatically be available in application.js.
-// You can use CoffeeScript in this file: http://coffeescript.org/
+// Define the angular module to be used in the application.
+// The module takes two arguments: the name of the module and 
+// an array of dependencies. The ng-app directive must reference the 
+// name you choose for your module here.
 var busRoutesApp = angular.module('busRoutesApp', ["ngResource"]);
 
-//busRoutesApp.factory("Student", function($resource) {
-//  return $resource("api/students/:id", {id: "@id"}, {'update', {method: 'PUT'}});
-//});
-busRoutesApp.factory('Student', function($resource) {
+// This factory defines the connection to the back end database and is
+// referenced in the controller using the name which is the first
+// argument.
+busRoutesApp.factory('Student', ["$resource", function($resource) {
   return $resource("/api/students/:id", {id: "@id"}, {update: {method: "PUT"}});
-});
+}]);
 
-busRoutesApp.controller('StudentsListCtrl', function ($scope, Student) {
+// This section defines a controller that belongs to the busRoutesApp
+// module. It takes two arguments: a name and either 
+// an array of dependencies with the last element being the function or
+// it can just take a function. Because of the way Rails minifies JS
+// files in production, we need to use the array method of specifying
+// dependencies.
+// The name is referenced in the view to assign control of that element
+// and its children to this specific controller.
+busRoutesApp.controller('StudentsListCtrl', ["$scope", "Student", function ($scope, Student) {
+  
+  // Define scoped variables and collections.  
   $scope.formDisplay = false;
   $scope.students = Student.query(); 
-  $scope.addNewStudent = function () {
+  
+  // Define scoped functions.
+  $scope.addNewStudent = addNewStudent;
+  $scope.removeStudent = removeStudent;
+  $scope.showForm = showForm;
+  $scope.hideForm = hideForm;
+  
+  //  Define controller functions. 
+  function addNewStudent() {
     student = Student.save($scope.NewStudent);
     $scope.students.push(student);
     $scope.NewStudent = {};
   };
-  $scope.removeStudent = function (index) {
+  function removeStudent(index) {
     student = $scope.students[index];
     student.$remove();
     $scope.students.splice(index, 1);
   };
-  $scope.showForm = function () {
+  function showForm() {
     $scope.formDisplay = true;
   };
-  $scope.hideForm = function () {
+  function hideForm() {
     $scope.formDisplay = false;
   };
-});
+}]);
 
 busRoutesApp.controller('MapCtrl', function ($scope, Student) {
 // If I just perform the Student.query() and then execute 
@@ -41,7 +60,6 @@ busRoutesApp.controller('MapCtrl', function ($scope, Student) {
   var students = Student.query(function() {
     $scope.students = students;
     setMarkers();
-    calcRoute();
   });
   $scope.testCase = [];
   $scope.lastLatLng = "";
@@ -75,6 +93,7 @@ busRoutesApp.controller('MapCtrl', function ($scope, Student) {
     });
     directionsDisplay1.setMap($scope.map);
     directionsDisplay2.setMap($scope.map);
+    calcRoute();
   };
   google.maps.event.addDomListener(window, 'load', initialize);
   $scope.getLatLng = function() {
