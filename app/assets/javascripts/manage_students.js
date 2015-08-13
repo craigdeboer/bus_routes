@@ -50,40 +50,52 @@ busRoutesApp.controller('StudentsListCtrl', ["$scope", "Student", function ($sco
   };
 }]);
 
-busRoutesApp.controller('MapCtrl', function ($scope, Student) {
+busRoutesApp.controller('MapCtrl', ["$scope", "Student", function ($scope, Student) {
 // If I just perform the Student.query() and then execute 
 // the setMarkers function, it fails because I'm trying to access
 // the $scope.students before the query is completed.
 // If I provide a function within the query, and call the
 // setMarkers function within that callback function, I ensure the
 // query is complete before I try to access the data.  
+  // Define scoped variables and collections.
   var students = Student.query(function() {
     $scope.students = students;
     setMarkers();
   });
-  $scope.testCase = [];
-  $scope.lastLatLng = "";
+  $scope.lastLatLng = null;
   $scope.origin = "Start";
   $scope.destination = "Destination";
 
+  // Define local variables.
   var directionsDisplay1;
   var directionsDisplay2;
   var directionsService = new google.maps.DirectionsService();
 
+  // Define scoped functions.
+  $scope.getLatLng = getLatLng;
+  
   function initialize() {
+    // Initialize the required directions renderers.
     directionsDisplay1 = new google.maps.DirectionsRenderer({draggable: true});
     directionsDisplay2 = new google.maps.DirectionsRenderer({draggable: true});
+    // Set map options.
     var mapOptions = {
       center: { lat: 49.1387, lng: -122.8218 },
       zoom: 13
     };
+    // Define the map.
     $scope.map = new google.maps.Map(document.getElementById("map-canvas"), mapOptions);
-
+    // Add an event listener so we know when a user clicks on the map.
+    // This click event will allow us to have access to the LatLng that 
+    // was clicked.
     $scope.map.addListener('click', function(event) {
       $scope.lastLatLng = event.latLng
-      alert(event.latLng);
+      alert(event.location);
       insertMarker(event.latLng);
     });
+    // Set the marker for the schools.
+    // *Change this to iterate through an array of all
+    // six schools to put them all on the map.
     marker = new google.maps.Marker({
       position: new google.maps.LatLng(49.170385, -122.796939),
       map: $scope.map,
@@ -91,47 +103,37 @@ busRoutesApp.controller('MapCtrl', function ($scope, Student) {
       icon: '/assets/blue_MarkerA.png',
       title: "Surrey High"
     });
+    // Set up which map the routes should be displayed on.
     directionsDisplay1.setMap($scope.map);
     directionsDisplay2.setMap($scope.map);
+    // For now, calcRoutes is called here but it should be user
+    // initiated once that functionality is implemented.
     calcRoute();
-  };
+  }; // End of initialize function.
+  // Wait for the window to load and then run the initialize function.
   google.maps.event.addDomListener(window, 'load', initialize);
-  $scope.getLatLng = function() {
+  
+  function getLatLng() {
     $scope.origin = $scope.lastLatLng;
   };
-  
-
-  /*$("#start").focusin(function() {
-    $scope.map.addListener('click', function(event) {
-      alert(event.latLng);
-      $("#start").val(event.latLng); 
-    });
-  });
-  $("#finish").focus(function() {
-    $scope.map.addListener('click', function(event) {
-      alert(event.latLng);
-      $("#finish").val(event.latLng); 
-    });
-  });*/
-  insertMarker = function(latLng) {
+  function insertMarker(latLng) {
     marker = new google.maps.Marker({
       position: latLng,
       map: $scope.map,
       title: "Way Point"
     });
   };
-  setMarkers = function () {
+  function setMarkers() {
     angular.forEach($scope.students, function(student) {
-     $scope.testCase.push(student.latitude);
      studentLatLng = new google.maps.LatLng(student.latitude, student.longitude);
      marker = new google.maps.Marker({
        position: studentLatLng,
        map: $scope.map,
-       title: student.first_name + student.last_name
+       title: student.first_name + " " + student.last_name
      });
     });
   };   
-  calcRoute = function () {
+  function calcRoute() {
     var start = new google.maps.LatLng(49.17705, -122.8588);
     var end = new google.maps.LatLng(49.1628, -122.7985);
     var request = {
@@ -145,7 +147,7 @@ busRoutesApp.controller('MapCtrl', function ($scope, Student) {
       }
     });
   };
-});
+}]);
 
 
 
