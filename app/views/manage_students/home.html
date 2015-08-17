@@ -72,9 +72,9 @@
     </div>
   </div>
   <div class="col-md-12" ng-controller="MapCtrl">
-    <input class="form-control" ng-click="getLatLng()" type="text" ng-model="origin">
-    <input class="form-control" id="finish" type="text" ng-model="destination">
-
+    <input class="form-control" ng-click="getOriginLatLng()" type="text" ng-model="origin">
+    <input class="form-control" ng-click="getDestinationLatLng()" type="text" ng-model="destination">
+    <button ng-click="calcRoute()">Show this route</button> 
     <div id="map-canvas">
     </div>
   </div>

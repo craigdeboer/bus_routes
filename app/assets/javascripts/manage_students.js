@@ -72,7 +72,9 @@ busRoutesApp.controller('MapCtrl', ["$scope", "Student", function ($scope, Stude
   var directionsService = new google.maps.DirectionsService();
 
   // Define scoped functions.
-  $scope.getLatLng = getLatLng;
+  $scope.getOriginLatLng = getOriginLatLng;
+  $scope.getDestinationLatLng = getDestinationLatLng;
+  $scope.calcRoute = calcRoute;
   
   function initialize() {
     // Initialize the required directions renderers.
@@ -108,13 +110,15 @@ busRoutesApp.controller('MapCtrl', ["$scope", "Student", function ($scope, Stude
     directionsDisplay2.setMap($scope.map);
     // For now, calcRoutes is called here but it should be user
     // initiated once that functionality is implemented.
-    calcRoute();
   }; // End of initialize function.
   // Wait for the window to load and then run the initialize function.
   google.maps.event.addDomListener(window, 'load', initialize);
   
-  function getLatLng() {
+  function getOriginLatLng() {
     $scope.origin = $scope.lastLatLng;
+  };
+  function getDestinationLatLng() {
+    $scope.destination = $scope.lastLatLng;
   };
   function insertMarker(latLng) {
     marker = new google.maps.Marker({
@@ -134,8 +138,9 @@ busRoutesApp.controller('MapCtrl', ["$scope", "Student", function ($scope, Stude
     });
   };   
   function calcRoute() {
-    var start = new google.maps.LatLng(49.17705, -122.8588);
-    var end = new google.maps.LatLng(49.1628, -122.7985);
+    console.log($scope.origin);
+    var start = $scope.origin;
+    var end = $scope.destination;
     var request = {
       origin:start,
       destination:end,
