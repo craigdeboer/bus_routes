@@ -70,6 +70,8 @@ busRoutesApp.controller('MapCtrl', ["$scope", "Student", function ($scope, Stude
   var directionsDisplay1;
   var directionsDisplay2;
   var directionsService = new google.maps.DirectionsService();
+  var markerIdCounter = 0;
+  var markers = {};
 
   // Define scoped functions.
   $scope.getOriginLatLng = getOriginLatLng;
@@ -114,6 +116,9 @@ busRoutesApp.controller('MapCtrl', ["$scope", "Student", function ($scope, Stude
   // Wait for the window to load and then run the initialize function.
   google.maps.event.addDomListener(window, 'load', initialize);
   
+  function uniqueId() {
+    return ++markerIdCounter;
+  };
   function getOriginLatLng() {
     $scope.origin = $scope.lastLatLng;
   };
@@ -121,17 +126,22 @@ busRoutesApp.controller('MapCtrl', ["$scope", "Student", function ($scope, Stude
     $scope.destination = $scope.lastLatLng;
   };
   function insertMarker(latLng) {
+    id = uniqueId(); // retrieve a unique id
     marker = new google.maps.Marker({
+      id: id,
+      draggable: true,
       position: latLng,
       map: $scope.map,
       title: "Way Point"
     });
+    markers[id] = marker; // add this marker to the markers object with the id as the key
   };
   function setMarkers() {
     angular.forEach($scope.students, function(student) {
      studentLatLng = new google.maps.LatLng(student.latitude, student.longitude);
      marker = new google.maps.Marker({
        position: studentLatLng,
+       draggable: true,
        map: $scope.map,
        title: student.first_name + " " + student.last_name
      });
