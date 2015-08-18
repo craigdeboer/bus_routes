@@ -161,6 +161,12 @@ busRoutesApp.controller('MapCtrl', ["$scope", "Student", function ($scope, Stude
         directionsDisplay1.setDirections(result);
       }
     });
+    deleteRouteMarkers();
+  };
+  function deleteRouteMarkers() {
+    angular.forEach(markers, function(marker) {
+      marker.setMap(null);
+    });
   };
 }]);
 
