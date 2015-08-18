@@ -77,16 +77,15 @@ busRoutesApp.controller('MapCtrl', ["$scope", "Student", function ($scope, Stude
   var directionsDisplay1;
   var directionsDisplay2;
   var directionsService = new google.maps.DirectionsService();
-  var markerIdCounter = 0;
-  var markers = {};
+  var markerIdCounter = 0; // used to assign unique id to each marker added by user
+  var markers = {}; // used to track the markers created by the user
 
   // Define scoped functions.
-  $scope.getOriginLatLng = getOriginLatLng;
-  $scope.getDestinationLatLng = getDestinationLatLng;
   $scope.calcRoute = calcRoute;
-  $scope.subRouteOne = [];  
-  $scope.subRouteTwo = [];  
-  $scope.subRouteThree = [];  
+  $scope.subRouteOne = []; // used to hold first 6 waypoints for rendering 
+  $scope.subRouteTwo = []; // used to hold next 6 waypoints if necessary 
+  $scope.subRouteThree = []; // used to hold the next 6 waypoints if necessary 
+  $scope.subRouteFour = []; // used to hold the last 6 waypoints if necessary
   
   function initialize() {
     // Initialize the required directions renderers.
@@ -128,12 +127,6 @@ busRoutesApp.controller('MapCtrl', ["$scope", "Student", function ($scope, Stude
   function uniqueId() {
     return ++markerIdCounter;
   };
-  function getOriginLatLng() {
-    $scope.origin = $scope.lastLatLng;
-  };
-  function getDestinationLatLng() {
-    $scope.destination = $scope.lastLatLng;
-  };
   function insertMarker(latLng) {
     id = uniqueId(); // retrieve a unique id
     marker = new google.maps.Marker({
@@ -159,31 +152,47 @@ busRoutesApp.controller('MapCtrl', ["$scope", "Student", function ($scope, Stude
   $scope.firstStep = function() {
     // alert(Object.keys(markers).length);
     defineSubRoutes();
-    console.log($scope.routes);
+    console.log($scope.subRouteOne);
+    calcRoute();
   };
   function defineSubRoutes() {
     count = 0;
     route = $scope.selectedRoute;
     angular.forEach(markers, function(marker) {
-      $scope.routes[route].waypoints.push(marker.getPosition());
+      markerLatLng = findLatLng(marker);
+      $scope.routes[route].waypoints.push(markerLatLng);
       count++;
-      if(count < 6) {
-        $scope.subRouteOne.push(marker.getPosition());
-      } else if(count == 6) {
-          $scope.subRouteOne.push(marker.getPosition());  
-          $scope.subRouteTwo.push(marker.getPosition());  
+      // The first 5 waypoints go into the subRouteOne array
+      if(count < 6) { 
+        $scope.subRouteOne.push(markerLatLng);
+      // The sixth waypoint is the last waypoint in the subRouteOne array and the first waypoint in the subRouteTwo array. It essentially connects the two subRoutes together.
+      } else if(count == 6) {           
+        $scope.subRouteOne.push(markerLatLng);
+        $scope.subRouteTwo.push(markerLatLng);  
+      // Waypoints 7-10 go into subRouteTwo  
       } else if(count > 6 && count < 11) {
-        $scope.subRouteTwo.push(marker.getPosition());
+        $scope.subRouteTwo.push(marker.markerLatLng);
+      // Eleventh waypoint is a connector waypoint for subRoutes Two and Three  
       } else if(count === 11) {
-        $scope.subRouteTwo.push(marker.getPosition());
-        $scope.subRouteThree.push(marker.getPosition());
+        $scope.subRouteTwo.push(markerLatLng);
+        $scope.subRouteThree.push(markerLatLng);
       }
     });
   };
+  function findLatLng(marker) {
+    var lat = marker.getPosition().lat();
+    var lng = marker.getPosition().lng();
+    return markerLatLng = [lat, lng];
+  };
   function calcRoute() {
+    var start = new google.maps.LatLng($scope.subRouteOne[0][0], $scope.subRouteOne[0][1]);
+    var end = new google.maps.LatLng($scope.subRouteOne[$scope.subRouteOne.length - 1][0], $scope.subRouteOne[$scope.subRouteOne.length - 1][1]);
+    console.log(start + end);
+    // var waypoints = findWaypoints($scope.subRouteOne);
     var request = {
       origin:start,
       destination:end,
+      // waypoints: waypoints,
       travelMode: google.maps.TravelMode.DRIVING
     };
     directionsService.route(request, function(result, status) {
@@ -192,6 +201,13 @@ busRoutesApp.controller('MapCtrl', ["$scope", "Student", function ($scope, Stude
       }
     });
     deleteRouteMarkers();
+  };
+  function findWaypoints(waypointsArray) {
+    var waypoints = [];
+    for (var i = 1; i < waypointsArray.length - 1; i++) {
+      waypoints.push(waypointsArray[i]);
+    }
+    return waypoints;
   };
   function deleteRouteMarkers() {
     angular.forEach(markers, function(marker) {
