@@ -65,6 +65,13 @@ busRoutesApp.controller('MapCtrl', ["$scope", "Student", function ($scope, Stude
   $scope.lastLatLng = null;
   $scope.origin = "Start";
   $scope.destination = "Destination";
+  $scope.selectedRoute = "";
+  $scope.routes = {
+    "101": {
+      "waypoints": [],
+      "capacity": 40
+    }
+  };
 
   // Define local variables.
   var directionsDisplay1;
@@ -77,6 +84,9 @@ busRoutesApp.controller('MapCtrl', ["$scope", "Student", function ($scope, Stude
   $scope.getOriginLatLng = getOriginLatLng;
   $scope.getDestinationLatLng = getDestinationLatLng;
   $scope.calcRoute = calcRoute;
+  $scope.subRouteOne = [];  
+  $scope.subRouteTwo = [];  
+  $scope.subRouteThree = [];  
   
   function initialize() {
     // Initialize the required directions renderers.
@@ -94,7 +104,6 @@ busRoutesApp.controller('MapCtrl', ["$scope", "Student", function ($scope, Stude
     // was clicked.
     $scope.map.addListener('click', function(event) {
       $scope.lastLatLng = event.latLng
-      alert(event.location);
       insertMarker(event.latLng);
     });
     // Set the marker for the schools.
@@ -132,7 +141,7 @@ busRoutesApp.controller('MapCtrl', ["$scope", "Student", function ($scope, Stude
       draggable: true,
       position: latLng,
       map: $scope.map,
-      title: "Way Point"
+      title: "Stop"
     });
     markers[id] = marker; // add this marker to the markers object with the id as the key
   };
@@ -147,10 +156,31 @@ busRoutesApp.controller('MapCtrl', ["$scope", "Student", function ($scope, Stude
      });
     });
   };   
+  $scope.firstStep = function() {
+    // alert(Object.keys(markers).length);
+    defineSubRoutes();
+    console.log($scope.routes);
+  };
+  function defineSubRoutes() {
+    count = 0;
+    route = $scope.selectedRoute;
+    angular.forEach(markers, function(marker) {
+      $scope.routes[route].waypoints.push(marker.getPosition());
+      count++;
+      if(count < 6) {
+        $scope.subRouteOne.push(marker.getPosition());
+      } else if(count == 6) {
+          $scope.subRouteOne.push(marker.getPosition());  
+          $scope.subRouteTwo.push(marker.getPosition());  
+      } else if(count > 6 && count < 11) {
+        $scope.subRouteTwo.push(marker.getPosition());
+      } else if(count === 11) {
+        $scope.subRouteTwo.push(marker.getPosition());
+        $scope.subRouteThree.push(marker.getPosition());
+      }
+    });
+  };
   function calcRoute() {
-    console.log($scope.origin);
-    var start = $scope.origin;
-    var end = $scope.destination;
     var request = {
       origin:start,
       destination:end,

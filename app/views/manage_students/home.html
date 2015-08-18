@@ -72,9 +72,28 @@
     </div>
   </div>
   <div class="col-md-12" ng-controller="MapCtrl">
+    <select ng-model="selectedRoute" > 
+      <option value="" disabled selected >Select Your Route</option>
+      <option value="101" >101</option>
+      <option value="102" >102</option>
+      <option value="103" >103</option>
+      <option value="104" >104</option>
+      <option value="105" >105</option>
+      <option value="106" >106</option>
+      <option value="107" >107</option>
+      <option value="108" >108</option>
+      <option value="201" >201</option>
+      <option value="202" >202</option>
+      <option value="203" >203</option>
+      <option value="204" >204</option>
+      <option value="205" >205</option>
+      <option value="206" >206</option>
+      <option value="207" >207</option>
+      <option value="208" >208</option>
+    </select>
     <input class="form-control" ng-click="getOriginLatLng()" type="text" ng-model="origin">
     <input class="form-control" ng-click="getDestinationLatLng()" type="text" ng-model="destination">
-    <button ng-click="calcRoute()">Show this route</button> 
+    <button ng-click="firstStep()">Show this route</button> 
     <div id="map-canvas">
     </div>
   </div>
