@@ -302,6 +302,12 @@ busRoutesApp.controller('MapCtrl', ["$scope", "Student", function ($scope, Stude
       marker.setMap(null);
     });
   };
+  $scope.printMap = function() {
+    var content = window.document.getElementById("map-canvas"); // get you map details
+    var newWindow = window.open(); // open a new window
+    newWindow.document.write(content.innerHTML); // write the map into the new window
+    newWindow.print(); // print the new window
+  };
 }]);
 
 
