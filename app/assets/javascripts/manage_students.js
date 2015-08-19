@@ -79,7 +79,8 @@ busRoutesApp.controller('MapCtrl', ["$scope", "Student", function ($scope, Stude
   var directionsDisplay2;
   var directionsService = new google.maps.DirectionsService();
   var markerIdCounter = 0; // used to assign unique id to each marker added by user
-  var markers = {}; // used to track the markers created by the user
+  var routeMarkers = {}; // used to track the markers created by the user
+  var studentMarkers = {};
 
   // Define scoped functions.
   $scope.calcRoute = calcRoute;
@@ -212,19 +213,37 @@ busRoutesApp.controller('MapCtrl', ["$scope", "Student", function ($scope, Stude
       map: $scope.map,
       title: "Stop"
     });
-    markers[id] = marker; // add this marker to the markers object with the id as the key
+    routeMarkers[id] = marker; // add this marker to the markers object with the id as the key
   };
   function setMarkers() {
+    var icon;
     angular.forEach($scope.students, function(student) {
+     icon = setMarkerColor(student.school); 
      studentLatLng = new google.maps.LatLng(student.latitude, student.longitude);
      marker = new google.maps.Marker({
+       id: student.id,
        position: studentLatLng,
+       icon: icon,
        draggable: true,
        map: $scope.map,
        title: student.first_name + " " + student.last_name
      });
+     studentMarkers[id] = marker;
     });
   };   
+  function setMarkerColor(school) {
+    switch (school) {
+      case "Surrey High":
+        icon = '/assets/brightGreen.png';
+        break;
+      case "LCS":
+        icon = '/assets/lightBlue.png';
+        break;
+      default:
+        icon = '/assets/red.png';
+    }
+    return icon;
+  };
   $scope.firstStep = function() {
     // alert(Object.keys(markers).length);
     defineSubRoutes();
