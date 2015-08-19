@@ -68,7 +68,8 @@ busRoutesApp.controller('MapCtrl', ["$scope", "Student", function ($scope, Stude
   $scope.selectedRoute = "";
   $scope.routes = {
     "101": {
-      "waypoints": [],
+      "waypoints": {
+      },
       "capacity": 40
     }
   };
