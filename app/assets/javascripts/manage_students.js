@@ -60,7 +60,6 @@ busRoutesApp.controller('MapCtrl', ["$scope", "Student", function ($scope, Stude
   // Define scoped variables and collections.
   var students = Student.query(function() {
     $scope.students = students;
-    setMarkers();
   });
   $scope.lastLatLng = null;
   $scope.origin = "Start";
@@ -81,9 +80,11 @@ busRoutesApp.controller('MapCtrl', ["$scope", "Student", function ($scope, Stude
   var markerIdCounter = 0; // used to assign unique id to each marker added by user
   var routeMarkers = {}; // used to track the markers created by the user
   var studentMarkers = {};
+  var existingStudentMarkers = [];
 
   // Define scoped functions.
   $scope.calcRoute = calcRoute;
+  $scope.setMarkers = setMarkers;
   $scope.subRouteOne = {
     1: {
        lat: null,
@@ -205,7 +206,7 @@ busRoutesApp.controller('MapCtrl', ["$scope", "Student", function ($scope, Stude
     return ++markerIdCounter;
   };
   function insertMarker(latLng) {
-    id = uniqueId(); // retrieve a unique id
+    var id = uniqueId(); // retrieve a unique id
     marker = new google.maps.Marker({
       id: id,
       draggable: true,
@@ -216,21 +217,48 @@ busRoutesApp.controller('MapCtrl', ["$scope", "Student", function ($scope, Stude
     routeMarkers[id] = marker; // add this marker to the markers object with the id as the key
   };
   function setMarkers() {
+    var id;
     var icon;
+    var label = "1";
     angular.forEach($scope.students, function(student) {
-     icon = setMarkerColor(student.school); 
-     studentLatLng = new google.maps.LatLng(student.latitude, student.longitude);
-     marker = new google.maps.Marker({
-       id: student.id,
-       position: studentLatLng,
-       icon: icon,
-       draggable: true,
-       map: $scope.map,
-       title: student.first_name + " " + student.last_name
-     });
-     studentMarkers[id] = marker;
+     var existingAddress = checkForExistingMarker(student.latitude, student.longitude);
+     console.log(existingAddress);
+     if (existingAddress) {
+       marker = studentMarkers[existingAddress];
+       console.log("in the existing address" + marker.label);
+       markerNumber = parseInt(marker.label) + 1;
+       marker.label = markerNumber.toString();
+     } else {
+       id = student.id;
+       icon = setMarkerColor(student.school); 
+       studentLatLng = new google.maps.LatLng(student.latitude, student.longitude);
+       marker = new google.maps.Marker({
+         id: id,
+         position: studentLatLng,
+         icon: icon,
+         label: label,
+         draggable: true,
+         map: $scope.map,
+         title: student.first_name + " " + student.last_name
+       });
+       studentMarkers[id] = marker;
+       existingStudentMarkers.push([student.latitude, student.longitude, student.id]);
+     }
     });
   };   
+  function checkForExistingMarker(lat, lng) {
+    if (existingStudentMarkers.length !== 0) {
+      for (i = 0; i < existingStudentMarkers.length; i++) {
+        if (lat === existingStudentMarkers[i][0] && lng === existingStudentMarkers[i][1]) {
+          return existingStudentMarkers[i][2];
+        } else {
+          return false;
+        }
+      }
+    } else {
+      return false;
+    }
+  };
   function setMarkerColor(school) {
     switch (school) {
       case "Surrey High":
