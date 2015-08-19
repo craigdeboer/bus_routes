@@ -83,10 +83,85 @@ busRoutesApp.controller('MapCtrl', ["$scope", "Student", function ($scope, Stude
 
   // Define scoped functions.
   $scope.calcRoute = calcRoute;
-  $scope.subRouteOne = []; // used to hold first 6 waypoints for rendering 
-  $scope.subRouteTwo = []; // used to hold next 6 waypoints if necessary 
-  $scope.subRouteThree = []; // used to hold the next 6 waypoints if necessary 
-  $scope.subRouteFour = []; // used to hold the last 6 waypoints if necessary
+  $scope.subRouteOne = {
+    1: {
+       lat: null,
+       lng: null
+    },
+    2: {
+       lat: null,
+       lng: null
+    },
+    3: {
+       lat: null,
+       lng: null
+    },
+    4: {
+       lat: null,
+       lng: null
+    },
+    5: {
+       lat: null,
+       lng: null
+    },
+    6: {
+       lat: null,
+       lng: null
+    }
+  }; // used to hold first 6 waypoints for rendering 
+  $scope.subRouteTwo = {
+    6: {
+       lat: null,
+       lng: null
+    },
+    7: {
+       lat: null,
+       lng: null
+    },
+    8: {
+       lat: null,
+       lng: null
+    },
+    9: {
+       lat: null,
+       lng: null
+    },
+    10: {
+       lat: null,
+       lng: null
+    },
+    11: {
+       lat: null,
+       lng: null
+    }
+  }; // used to hold next 6 waypoints if necessary 
+  $scope.subRouteThree = {
+    11: {
+       lat: null,
+       lng: null
+    },
+    12: {
+       lat: null,
+       lng: null
+    },
+    i: {
+       lat: null,
+       lng: null
+    },
+    4: {
+       lat: null,
+       lng: null
+    },
+    5: {
+       lat: null,
+       lng: null
+    },
+    6: {
+       lat: null,
+       lng: null
+    }
+  }; // used to hold the next 6 waypoints if necessary 
+  $scope.subRouteFour = {}; // used to hold the last 6 waypoints if necessary
   
   function initialize() {
     // Initialize the required directions renderers.
@@ -160,34 +235,46 @@ busRoutesApp.controller('MapCtrl', ["$scope", "Student", function ($scope, Stude
     count = 0;
     route = $scope.selectedRoute;
     angular.forEach(markers, function(marker) {
-      markerLatLng = findLatLng(marker);
-      $scope.routes[route].waypoints.push(markerLatLng);
+      var markerLat = markerLatitude(marker);
+      var markerLng = markerLongitude(marker);
+      // $scope.routes[route].waypoints.push(markerLatLng);
       count++;
+      $scope.subRouteOne[count];
+      console.log($scope.subRouteOne);
       // The first 5 waypoints go into the subRouteOne array
       if(count < 6) { 
-        $scope.subRouteOne.push(markerLatLng);
+        $scope.subRouteOne[count].lat = markerLat;
+        $scope.subRouteOne[count].lng = markerLng;
       // The sixth waypoint is the last waypoint in the subRouteOne array and the first waypoint in the subRouteTwo array. It essentially connects the two subRoutes together.
       } else if(count == 6) {           
-        $scope.subRouteOne.push(markerLatLng);
-        $scope.subRouteTwo.push(markerLatLng);  
+        $scope.subRouteOne[count].lat = markerLat;
+        $scope.subRouteOne[count].lng = markerLng;
+        $scope.subRouteTwo[count].lat = markerLat;
+        $scope.subRouteTwo[count].lng = markerLng;
       // Waypoints 7-10 go into subRouteTwo  
       } else if(count > 6 && count < 11) {
-        $scope.subRouteTwo.push(marker.markerLatLng);
+        $scope.subRouteTwo[count].lat = markerLat;
+        $scope.subRouteTwo[count].lng = markerLng;
       // Eleventh waypoint is a connector waypoint for subRoutes Two and Three  
       } else if(count === 11) {
-        $scope.subRouteTwo.push(markerLatLng);
-        $scope.subRouteThree.push(markerLatLng);
+        $scope.subRouteTwo[count].lat = markerLat;
+        $scope.subRouteTwo[count].lng = markerLng;
+        $scope.subRouteThree[count].lat = markerLat;
+        $scope.subRouteThree[count].lng = markerLng;
       }
     });
   };
-  function findLatLng(marker) {
+  function markerLatitude(marker) {
     var lat = marker.getPosition().lat();
+    return lat;
+  };
+  function markerLongitude(marker) {
     var lng = marker.getPosition().lng();
-    return markerLatLng = [lat, lng];
+    return lng;
   };
   function calcRoute() {
-    var start = new google.maps.LatLng($scope.subRouteOne[0][0], $scope.subRouteOne[0][1]);
-    var end = new google.maps.LatLng($scope.subRouteOne[$scope.subRouteOne.length - 1][0], $scope.subRouteOne[$scope.subRouteOne.length - 1][1]);
+    var start = new google.maps.LatLng($scope.subRouteOne.one.lat, $scope.subRouteOne.one.lng);
+    var end = new google.maps.LatLng($scope.subRouteOne.lat, $scope.subRouteOne.lng);
     console.log(start + end);
     // var waypoints = findWaypoints($scope.subRouteOne);
     var request = {
