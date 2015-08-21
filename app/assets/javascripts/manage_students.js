@@ -27,7 +27,6 @@ busRoutesApp.controller('StudentsListCtrl', ["$scope", "Student", function ($sco
   
   // Define scoped functions.
   $scope.addNewStudent = addNewStudent;
-  $scope.removeStudent = removeStudent;
   $scope.showForm = showForm;
   $scope.hideForm = hideForm;
   
@@ -36,11 +35,6 @@ busRoutesApp.controller('StudentsListCtrl', ["$scope", "Student", function ($sco
     student = Student.save($scope.NewStudent);
     $scope.students.push(student);
     $scope.NewStudent = {};
-  };
-  function removeStudent(index) {
-    student = $scope.students[index];
-    student.$remove();
-    $scope.students.splice(index, 1);
   };
   function showForm() {
     $scope.formDisplay = true;
@@ -85,6 +79,7 @@ busRoutesApp.controller('MapCtrl', ["$scope", "Student", function ($scope, Stude
   // Define scoped functions.
   $scope.calcRoute = calcRoute;
   $scope.setMarkers = setMarkers;
+  $scope.removeStudent = removeStudent;
   $scope.subRouteOne = {
     1: {
        lat: null,
@@ -216,16 +211,14 @@ busRoutesApp.controller('MapCtrl', ["$scope", "Student", function ($scope, Stude
     });
     routeMarkers[id] = marker; // add this marker to the markers object with the id as the key
   };
-  function setMarkers() {
+  function setMarkers(results) {
     var id;
     var icon;
     var label = "1";
-    angular.forEach($scope.students, function(student) {
+    angular.forEach(results, function(student) {
      var existingAddress = checkForExistingMarker(student.latitude, student.longitude);
-     console.log(existingAddress);
      if (existingAddress) {
        marker = studentMarkers[existingAddress];
-       console.log("in the existing address" + marker.label);
        markerNumber = parseInt(marker.label) + 1;
        marker.label = markerNumber.toString();
      } else {
@@ -271,6 +264,11 @@ busRoutesApp.controller('MapCtrl', ["$scope", "Student", function ($scope, Stude
         icon = '/assets/red.png';
     }
     return icon;
+  };
+  function removeStudent(index) {
+    student = $scope.students[index];
+    student.$remove();
+    $scope.students.splice(index, 1);
   };
   $scope.firstStep = function() {
     // alert(Object.keys(markers).length);

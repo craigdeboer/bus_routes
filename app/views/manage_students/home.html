@@ -18,6 +18,8 @@
       </form>
       <button ng-cloak ng-show="formDisplay" ng-click="hideForm()">Finished Adding Students</button>
     </div>
+  </div>
+  <div class="col-md-12" ng-controller="MapCtrl">
     <div class="col-md-12">
       FILTERS:
       <select ng-model="School"> 
@@ -70,8 +72,6 @@
         </tr>
       </table>
     </div>
-  </div>
-  <div class="col-md-12" ng-controller="MapCtrl">
     <select ng-model="selectedRoute" > 
       <option value="" disabled selected >Select Your Route</option>
       <option value="101" >101</option>
@@ -93,7 +93,7 @@
     </select>
     <button ng-click="firstStep()">Show this route</button> 
     <button ng-click="printMap()">Print Map</button> 
-    <button ng-click="setMarkers()">Show Student Markers</button> 
+    <button ng-click="setMarkers(results)">Show Student Markers</button> 
     <div id="map-canvas">
     </div>
   </div>
