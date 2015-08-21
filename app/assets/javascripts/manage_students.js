@@ -81,82 +81,10 @@ busRoutesApp.controller('MapCtrl', ["$scope", "Student", function ($scope, Stude
   $scope.setMarkers = setMarkers;
   $scope.removeStudent = removeStudent;
   $scope.subRouteOne = {
-    1: {
-       lat: null,
-       lng: null
-    },
-    2: {
-       lat: null,
-       lng: null
-    },
-    3: {
-       lat: null,
-       lng: null
-    },
-    4: {
-       lat: null,
-       lng: null
-    },
-    5: {
-       lat: null,
-       lng: null
-    },
-    6: {
-       lat: null,
-       lng: null
-    }
   }; // used to hold first 6 waypoints for rendering 
   $scope.subRouteTwo = {
-    6: {
-       lat: null,
-       lng: null
-    },
-    7: {
-       lat: null,
-       lng: null
-    },
-    8: {
-       lat: null,
-       lng: null
-    },
-    9: {
-       lat: null,
-       lng: null
-    },
-    10: {
-       lat: null,
-       lng: null
-    },
-    11: {
-       lat: null,
-       lng: null
-    }
   }; // used to hold next 6 waypoints if necessary 
   $scope.subRouteThree = {
-    11: {
-       lat: null,
-       lng: null
-    },
-    12: {
-       lat: null,
-       lng: null
-    },
-    i: {
-       lat: null,
-       lng: null
-    },
-    4: {
-       lat: null,
-       lng: null
-    },
-    5: {
-       lat: null,
-       lng: null
-    },
-    6: {
-       lat: null,
-       lng: null
-    }
   }; // used to hold the next 6 waypoints if necessary 
   $scope.subRouteFour = {}; // used to hold the last 6 waypoints if necessary
   
@@ -212,11 +140,14 @@ busRoutesApp.controller('MapCtrl', ["$scope", "Student", function ($scope, Stude
     routeMarkers[id] = marker; // add this marker to the markers object with the id as the key
   };
   function setMarkers(results) {
+    deleteStudentMarkers();
+    existingStudentMarkers = [];
     var id;
     var icon;
     var label = "1";
     angular.forEach(results, function(student) {
      var existingAddress = checkForExistingMarker(student.latitude, student.longitude);
+     console.log("Just after querying checkForExistingMarker" + existingAddress);
      if (existingAddress) {
        marker = studentMarkers[existingAddress];
        markerNumber = parseInt(marker.label) + 1;
@@ -236,22 +167,31 @@ busRoutesApp.controller('MapCtrl', ["$scope", "Student", function ($scope, Stude
        });
        studentMarkers[id] = marker;
        existingStudentMarkers.push([student.latitude, student.longitude, student.id]);
+       console.log(existingStudentMarkers);
      }
     });
-  };   
-  function checkForExistingMarker(lat, lng) {
-    if (existingStudentMarkers.length !== 0) {
-      for (i = 0; i < existingStudentMarkers.length; i++) {
-        if (lat === existingStudentMarkers[i][0] && lng === existingStudentMarkers[i][1]) {
-          return existingStudentMarkers[i][2];
-        } else {
-          return false;
+    function checkForExistingMarker(lat, lng) {
+      var matching = false;
+      if (existingStudentMarkers.length !== 0) {
+        for (i = 0; i < existingStudentMarkers.length; i++) {
+          console.log(lat + "eSM Value:" + existingStudentMarkers[i][0]);
+          console.log(lng + "eSM Value:" + existingStudentMarkers[i][1]);
+          if (lat === existingStudentMarkers[i][0] && lng === existingStudentMarkers[i][1]) {
+             matching = existingStudentMarkers[i][2];
+          } 
         }
+        return matching;
+      } else {
+        return false;
       }
-    } else {
-      return false;
-    }
+    };
+  };   
+  function deleteStudentMarkers() {
+    angular.forEach(studentMarkers, function(marker) {
+      marker.setMap(null);
+    });
   };
+
   function setMarkerColor(school) {
     switch (school) {
       case "Surrey High":

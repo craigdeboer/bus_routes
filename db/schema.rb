@@ -11,23 +11,28 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150723232053) do
+ActiveRecord::Schema.define(version: 20150821213415) do
 
   create_table "students", force: :cascade do |t|
-    t.string   "first_name",     limit: 255
-    t.string   "last_name",      limit: 255
-    t.string   "school",         limit: 255
-    t.integer  "grade",          limit: 4
-    t.string   "phone",          limit: 255
-    t.string   "email",          limit: 255
-    t.text     "street_address", limit: 65535
-    t.string   "city",           limit: 255
-    t.string   "postal_code",    limit: 255
-    t.integer  "bus_route",      limit: 4
-    t.datetime "created_at",                   null: false
-    t.datetime "updated_at",                   null: false
-    t.float    "latitude",       limit: 24
-    t.float    "longitude",      limit: 24
+    t.string   "first_name",        limit: 255
+    t.string   "last_name",         limit: 255
+    t.string   "school",            limit: 255
+    t.integer  "grade",             limit: 4
+    t.string   "phone",             limit: 255
+    t.string   "email",             limit: 255
+    t.text     "street_address",    limit: 65535
+    t.string   "city",              limit: 255
+    t.string   "postal_code",       limit: 255
+    t.integer  "bus_route",         limit: 4
+    t.datetime "created_at",                      null: false
+    t.datetime "updated_at",                      null: false
+    t.float    "latitude",          limit: 24
+    t.float    "longitude",         limit: 24
+    t.text     "comments",          limit: 65535
+    t.string   "additional_phones", limit: 255
+    t.string   "additional_email",  limit: 255
+    t.string   "parent_names",      limit: 255
+    t.string   "return_trip",       limit: 255
   end
 
   create_table "users", force: :cascade do |t|
