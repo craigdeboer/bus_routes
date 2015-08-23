@@ -28,13 +28,25 @@
         <option value="LCS">Langley Christian</option>
         <option value="CCES">Credo Elementary</option>
         <option value="CCHS">Credo High</option>
-        <option value="WOFO">William of Orange</option>
-        <option value="CC">Cloverdale Christian</option>
+        <option value="WO">William of Orange</option>
+        <option value="CCS">Cloverdale Christian</option>
       </select>
       <select ng-model="City" >
         <option value="" default selected>All Cities</option>
         <option value="Surrey">Surrey</option>
         <option value="Langley">Langley</option>
+      </select>
+      ORDER By:
+      <select ng-model="firstOrderSelection">
+        <option value="last_name" default selected>Last Name</option>
+        <option value="school">School</option>
+        <option value="city">City</option>
+      </select>
+      <select ng-model="secondOrderSelection">
+        <option value="" default selected>Secondary Ordering</option>
+        <option value="last_name">Last Name</option>
+        <option value="school">School</option>
+        <option value="city">City</option>
       </select>
       <p>
 <!-- The results variable is populated by the ng-repeat directive below -->
@@ -58,7 +70,7 @@
           <th>Postal Code</th>
         </tr>
 <!-- The 'as results' allows the result of the filter to be stored in a variable called results so the information can be used elsewhere. In this case it is used to display the number of students that meet the user's filter criteria. -->
-        <tr ng-repeat="student in students | filter:School |filter:City as results">
+        <tr ng-repeat="student in students | filter:School |filter:City | orderBy:[firstOrderSelection, secondOrderSelection] as results">
           <td>{{student.first_name}}</td>
           <td>{{student.last_name}}</td>
           <td>{{student.school}}</td>
