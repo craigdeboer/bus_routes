@@ -38,7 +38,7 @@
       </select>
       ORDER By:
       <select ng-model="firstOrderSelection">
-        <option value="last_name" default selected>Last Name</option>
+        <option value="last_name">Last Name</option>
         <option value="school">School</option>
         <option value="city">City</option>
       </select>
@@ -80,6 +80,7 @@
           <td>{{student.street_address}}</td>
           <td>{{student.city}}</td>
           <td>{{student.postal_code}}</td>
+          <td>{{student.bus_route}}</td>
           <td><button ng-click="removeStudent($index)">Delete</button></td>
         </tr>
       </table>

@@ -59,6 +59,7 @@ busRoutesApp.controller('MapCtrl', ["$scope", "Student", function ($scope, Stude
   $scope.origin = "Start";
   $scope.destination = "Destination";
   $scope.selectedRoute = "";
+  $scope.firstOrderSelection = "last_name";
   $scope.routes = {
     "101": {
       "waypoints": {
@@ -147,14 +148,14 @@ busRoutesApp.controller('MapCtrl', ["$scope", "Student", function ($scope, Stude
     var label = "1";
     angular.forEach(results, function(student) {
      var existingAddress = checkForExistingMarker(student.latitude, student.longitude);
-     console.log("Just after querying checkForExistingMarker" + existingAddress);
      if (existingAddress) {
        marker = studentMarkers[existingAddress];
        markerNumber = parseInt(marker.label) + 1;
        marker.label = markerNumber.toString();
      } else {
        id = student.id;
-       icon = setMarkerColor(student.school); 
+       icon = setMarkerColor(student.bus_route); 
+       console.log(icon);
        studentLatLng = new google.maps.LatLng(student.latitude, student.longitude);
        marker = new google.maps.Marker({
          id: id,
@@ -167,15 +168,12 @@ busRoutesApp.controller('MapCtrl', ["$scope", "Student", function ($scope, Stude
        });
        studentMarkers[id] = marker;
        existingStudentMarkers.push([student.latitude, student.longitude, student.id]);
-       console.log(existingStudentMarkers);
      }
     });
     function checkForExistingMarker(lat, lng) {
       var matching = false;
       if (existingStudentMarkers.length !== 0) {
         for (i = 0; i < existingStudentMarkers.length; i++) {
-          console.log(lat + "eSM Value:" + existingStudentMarkers[i][0]);
-          console.log(lng + "eSM Value:" + existingStudentMarkers[i][1]);
           if (lat === existingStudentMarkers[i][0] && lng === existingStudentMarkers[i][1]) {
              matching = existingStudentMarkers[i][2];
           } 
@@ -185,6 +183,20 @@ busRoutesApp.controller('MapCtrl', ["$scope", "Student", function ($scope, Stude
         return false;
       }
     };
+    function setMarkerColor(bus_route) {
+      console.log(bus_route);
+      switch (bus_route) {
+        case 101:
+          icon = '/assets/brightGreen.png';
+          break;
+        case 102:
+          icon = '/assets/lightBlue.png';
+          break;
+        default:
+          icon = '/assets/red.png';
+      }
+      return icon;
+    };
   };   
   function deleteStudentMarkers() {
     angular.forEach(studentMarkers, function(marker) {
@@ -192,19 +204,6 @@ busRoutesApp.controller('MapCtrl', ["$scope", "Student", function ($scope, Stude
     });
   };
 
-  function setMarkerColor(school) {
-    switch (school) {
-      case "Surrey High":
-        icon = '/assets/brightGreen.png';
-        break;
-      case "LCS":
-        icon = '/assets/lightBlue.png';
-        break;
-      default:
-        icon = '/assets/red.png';
-    }
-    return icon;
-  };
   function removeStudent(index) {
     student = $scope.students[index];
     student.$remove();
