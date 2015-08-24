@@ -184,13 +184,36 @@ busRoutesApp.controller('MapCtrl', ["$scope", "Student", function ($scope, Stude
       }
     };
     function setMarkerColor(bus_route) {
-      console.log(bus_route);
-      switch (bus_route) {
-        case 101:
+      switch (true) {
+        case bus_route === 101 || bus_route === 201:
           icon = '/assets/brightGreen.png';
           break;
-        case 102:
+        case bus_route === 102 || bus_route === 202:
           icon = '/assets/lightBlue.png';
+          break;
+        case bus_route === 103 || bus_route === 203:
+        case 103:
+          icon = '/assets/darkBlue.png';
+          break;
+        case bus_route === 104 || bus_route === 204:
+        case 104:
+          icon = '/assets/pink.png';
+          break;
+        case bus_route === 105 || bus_route === 205:
+        case 105:
+          icon = '/assets/darkGreen.png';
+          break;
+        case bus_route === 106 || bus_route === 206:
+        case 106:
+          icon = '/assets/purple.png';
+          break;
+        case bus_route === 107 || bus_route === 207:
+        case 107:
+          icon = '/assets/yellow.png';
+          break;
+        case bus_route === 108 || bus_route === 208:
+        case 108:
+          icon = '/assets/orange.png';
           break;
         default:
           icon = '/assets/red.png';

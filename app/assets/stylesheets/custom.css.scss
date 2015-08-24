@@ -1,0 +1,25 @@
+@import "bootstrap-sass-official/assets/stylesheets/_bootstrap-sprockets";
+@import "bootstrap-sass-official/assets/stylesheets/_bootstrap";
+
+#map-canvas {
+  height: 1000px;
+  width: 100%;
+}
+table {
+  margin-bottom: 50px;
+}
+th {
+  width: 10%;
+  &.narrow {
+    width: 5%;
+  }
+}
+.filter-results {
+  color: blue;
+}
+tr:nth-child(even) {
+  background-color: #BEC6D8;
+}
+td.delete-button {
+  background-color: white;
+}

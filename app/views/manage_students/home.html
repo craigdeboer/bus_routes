@@ -57,7 +57,7 @@
         <option value="school">School</option>
         <option value="city">City</option>
       </select>
-      <p>
+      <p class="filter-results">
 <!-- The results variable is populated by the ng-repeat directive below -->
         <ng-pluralize 
             count="results.length"
@@ -70,13 +70,14 @@
         <tr> 
           <th>First Name</th>
           <th>Last Name</th>
-          <th>School</th>
-          <th>Grade</th>
+          <th class="narrow">School</th>
+          <th class="narrow">Grade</th>
           <th>Phone</th>
           <th>Email</th>
           <th>Street Address</th>
           <th>City</th>
           <th>Postal Code</th>
+          <th class="narrow">Route</th>
         </tr>
 <!-- The 'as results' allows the result of the filter to be stored in a variable called results so the information can be used elsewhere. In this case it is used to display the number of students that meet the user's filter criteria. -->
 <tr ng-repeat="student in students | filter:{bus_route:Route} | filter:{school:School} |filter:City | orderBy:[firstOrderSelection, secondOrderSelection] as results">
@@ -90,10 +91,9 @@
           <td>{{student.city}}</td>
           <td>{{student.postal_code}}</td>
           <td>{{student.bus_route}}</td>
-          <td><button ng-click="removeStudent($index)">Delete</button></td>
+          <td class="delete-button"><button ng-click="removeStudent($index)">Delete</button></td>
         </tr>
       </table>
-      {{Route}}
     </div>
     <select ng-model="selectedRoute" > 
       <option value="" disabled selected >Select Your Route</option>
