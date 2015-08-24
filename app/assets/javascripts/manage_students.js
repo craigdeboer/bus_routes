@@ -44,7 +44,7 @@ busRoutesApp.controller('StudentsListCtrl', ["$scope", "Student", function ($sco
   };
 }]);
 
-busRoutesApp.controller('MapCtrl', ["$scope", "Student", function ($scope, Student) {
+busRoutesApp.controller('MapCtrl', ["$scope", "$filter", "Student", function ($scope, $filter, Student) {
 // If I just perform the Student.query() and then execute 
 // the setMarkers function, it fails because I'm trying to access
 // the $scope.students before the query is completed.
@@ -60,6 +60,7 @@ busRoutesApp.controller('MapCtrl', ["$scope", "Student", function ($scope, Stude
   $scope.destination = "Destination";
   $scope.selectedRoute = "";
   $scope.firstOrderSelection = "last_name";
+  $scope.clickedStudent = {"first_name":"Reggie"};
   $scope.routes = {
     "101": {
       "waypoints": {
@@ -155,7 +156,6 @@ busRoutesApp.controller('MapCtrl', ["$scope", "Student", function ($scope, Stude
      } else {
        id = student.id;
        icon = setMarkerColor(student.bus_route); 
-       console.log(icon);
        studentLatLng = new google.maps.LatLng(student.latitude, student.longitude);
        marker = new google.maps.Marker({
          id: id,
@@ -166,8 +166,11 @@ busRoutesApp.controller('MapCtrl', ["$scope", "Student", function ($scope, Stude
          map: $scope.map,
          title: student.first_name + " " + student.last_name
        });
+       marker.addListener('click', function() {
+         $scope.$apply($scope.clickedStudent = $filter('filter')($scope.students, {id:this.id}, true)[0]);
+       });
        studentMarkers[id] = marker;
-       existingStudentMarkers.push([student.latitude, student.longitude, student.id]);
+       existingStudentMarkers.push([student.latitude, student.longitude, id]);
      }
     });
     function checkForExistingMarker(lat, lng) {
