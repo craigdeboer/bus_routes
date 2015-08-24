@@ -117,7 +117,14 @@
     <button ng-click="firstStep()">Show this route</button> 
     <button ng-click="printMap()">Print Map</button> 
     <button ng-click="setMarkers(results)">Show Student Markers</button> 
-    <p>{{clickedStudent.first_name}}</p> 
+    <div class="edit-student">
+          <input class="form-control" type="text" placeholder="First Name" ng-model="clickedStudent.first_name">
+          <input class="form-control" type="text" placeholder="Last Name" ng-model="clickedStudent.last_name">
+          <input class="form-control" type="text" placeholder="School" ng-model="clickedStudent.school">
+          <input class="form-control" type="text" placeholder="Grade" ng-model="clickedStudent.bus_route">
+          <button ng-click="updateStudent()">Update Student</button>
+    </div>
+
 
     <div id="map-canvas">
     </div>

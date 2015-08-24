@@ -312,6 +312,16 @@ busRoutesApp.controller('MapCtrl', ["$scope", "$filter", "Student", function ($s
       marker.setMap(null);
     });
   };
+  $scope.updateStudent = function() {
+    for(i=0; i < $scope.students.length; i++) {
+      var student = $scope.students[i];
+      if ($scope.clickedStudent.id === student.id) {
+        student.bus_route = $scope.clickedStudent.bus_route;
+        break;
+      }
+    }
+    console.log($scope.students);
+  };
   $scope.printMap = function() {
     var content = window.document.getElementById("map-canvas"); // get you map details
     var newWindow = window.open(); // open a new window
