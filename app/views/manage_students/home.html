@@ -22,8 +22,9 @@
   <div class="col-md-12" ng-controller="MapCtrl">
     <div class="col-md-12">
       FILTERS:
-      <select ng-model="Route"> 
+      <select ng-model="Route" ng-change="deleteRouteFilter()"> 
         <option value="" default selected>Filter by Route</option>
+        <option value="!">No Route</option>
         <option value="101">101</option>
         <option value="102">102</option>
         <option value="103">103</option>
@@ -116,7 +117,8 @@
     </select>
     <button ng-click="firstStep()">Show this route</button> 
     <button ng-click="printMap()">Print Map</button> 
-    <button ng-click="setMarkers(results)">Show Student Markers</button> 
+    <button ng-click="resetMarkers(results)">Show Only Students In List On Map</button> 
+    <button ng-click="addMarkers(results)">Add Students In List To Map</button> 
     <div class="edit-student">
           <input class="form-control" type="text" placeholder="First Name" ng-model="clickedStudent.first_name">
           <input class="form-control" type="text" placeholder="Last Name" ng-model="clickedStudent.last_name">

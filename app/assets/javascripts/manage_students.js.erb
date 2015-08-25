@@ -80,7 +80,8 @@ busRoutesApp.controller('MapCtrl', ["$scope", "$filter", "Student", function ($s
 
   // Define scoped functions.
   $scope.calcRoute = calcRoute;
-  $scope.setMarkers = setMarkers;
+  $scope.resetMarkers = resetMarkers;
+  $scope.addMarkers = addMarkers;
   $scope.removeStudent = removeStudent;
   $scope.subRouteOne = {
   }; // used to hold first 6 waypoints for rendering 
@@ -141,8 +142,14 @@ busRoutesApp.controller('MapCtrl', ["$scope", "$filter", "Student", function ($s
     });
     routeMarkers[id] = marker; // add this marker to the markers object with the id as the key
   };
-  function setMarkers(results) {
+  function resetMarkers(results) {
     deleteStudentMarkers();
+    setMarkers(results);
+  };
+  function addMarkers(results) {
+    setMarkers(results);
+  };
+  function setMarkers(results) {
     existingStudentMarkers = [];
     var id;
     var icon;
@@ -186,38 +193,38 @@ busRoutesApp.controller('MapCtrl', ["$scope", "$filter", "Student", function ($s
         return false;
       }
     };
-    function setMarkerColor(bus_route) {
-      switch (true) {
-        case bus_route === 101 || bus_route === 201:
-          icon = '<%= image_url("brightGreen.png") %>';
-          break;
-        case bus_route === 102 || bus_route === 202:
-          icon = '<%= image_url("lightBlue.png") %>';
-          break;
-        case bus_route === 103 || bus_route === 203:
-          icon = '<%= image_url("darkBlue.png") %>';
-          break;
-        case bus_route === 104 || bus_route === 204:
-          icon = '<%= image_url("pink.png") %>';
-          break;
-        case bus_route === 105 || bus_route === 205:
-          icon = '<%= image_url("darkGreen.png") %>';
-          break;
-        case bus_route === 106 || bus_route === 206:
-          icon = '<%= image_url("purple.png") %>';
-          break;
-        case bus_route === 107 || bus_route === 207:
-          icon = '<%= image_url("yellow.png") %>';
-          break;
-        case bus_route === 108 || bus_route === 208:
-          icon = '<%= image_url("orange.png") %>';
-          break;
-        default:
-          icon = '<%= image_url("red.png") %>';
-      }
-      return icon;
-    };
   };   
+  function setMarkerColor(bus_route) {
+    switch (true) {
+      case bus_route === 101 || bus_route === 201:
+        icon = '<%= image_url("brightGreen.png") %>';
+        break;
+      case bus_route === 102 || bus_route === 202:
+        icon = '<%= image_url("lightBlue.png") %>';
+        break;
+      case bus_route === 103 || bus_route === 203:
+        icon = '<%= image_url("darkBlue.png") %>';
+        break;
+      case bus_route === 104 || bus_route === 204:
+        icon = '<%= image_url("pink.png") %>';
+        break;
+      case bus_route === 105 || bus_route === 205:
+        icon = '<%= image_url("darkGreen.png") %>';
+        break;
+      case bus_route === 106 || bus_route === 206:
+        icon = '<%= image_url("purple.png") %>';
+        break;
+      case bus_route === 107 || bus_route === 207:
+        icon = '<%= image_url("yellow.png") %>';
+        break;
+      case bus_route === 108 || bus_route === 208:
+        icon = '<%= image_url("orange.png") %>';
+        break;
+      default:
+        icon = '<%= image_url("red.png") %>';
+    }
+    return icon;
+  };
   function deleteStudentMarkers() {
     angular.forEach(studentMarkers, function(marker) {
       marker.setMap(null);
@@ -310,10 +317,16 @@ busRoutesApp.controller('MapCtrl', ["$scope", "$filter", "Student", function ($s
     for(i=0; i < $scope.students.length; i++) {
       var student = $scope.students[i];
       if ($scope.clickedStudent.id === student.id) {
-        student.bus_route = $scope.clickedStudent.bus_route;
+        student.bus_route = parseInt($scope.clickedStudent.bus_route);
         break;
       }
     }
+    marker = studentMarkers[$scope.clickedStudent.id];
+    icon = setMarkerColor($scope.clickedStudent.bus_route);
+    marker.icon = icon;
+    marker.setMap(null);
+    marker.setMap($scope.map);
+    $scope.clickedStudent = {};
     console.log($scope.students);
   };
   $scope.printMap = function() {
@@ -321,6 +334,11 @@ busRoutesApp.controller('MapCtrl', ["$scope", "$filter", "Student", function ($s
     var newWindow = window.open(); // open a new window
     newWindow.document.write(content.innerHTML); // write the map into the new window
     newWindow.print(); // print the new window
+  };
+  $scope.deleteRouteFilter = function() {
+    if ($scope.Route === "") {
+      delete $scope.Route;
+    }
   };
 }]);
 
