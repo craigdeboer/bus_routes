@@ -120,11 +120,11 @@
     <button ng-click="resetMarkers(results)">Show Only Students In List On Map</button> 
     <button ng-click="addMarkers(results)">Add Students In List To Map</button> 
     <div class="edit-student">
-          <input class="form-control" type="text" placeholder="First Name" ng-model="clickedStudent.first_name">
-          <input class="form-control" type="text" placeholder="Last Name" ng-model="clickedStudent.last_name">
-          <input class="form-control" type="text" placeholder="School" ng-model="clickedStudent.school">
-          <input class="form-control" type="text" placeholder="Grade" ng-model="clickedStudent.bus_route">
-          <button ng-click="updateStudent()">Update Student</button>
+      <p>{{clickedStudent.first_name}}</p>
+      <p>{{clickedStudent.last_name}}</p>
+      <p>{{clickedStudent.school}}</p>
+      <input class="form-control" type="text" placeholder="Route" ng-model="clickedStudent.bus_route">
+      <button ng-click="updateStudent()">Update Student</button>
     </div>
 
 
