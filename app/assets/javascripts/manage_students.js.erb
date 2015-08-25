@@ -115,7 +115,7 @@ busRoutesApp.controller('MapCtrl', ["$scope", "$filter", "Student", function ($s
       position: new google.maps.LatLng(49.170385, -122.796939),
       map: $scope.map,
       label: 'A',
-      icon: <% image_url("blue_MarkerA.png") %>,
+      icon: <%= image_url("blue_MarkerA.png") %>,
       title: "Surrey High"
     });
     // Set up which map the routes should be displayed on.
@@ -189,37 +189,31 @@ busRoutesApp.controller('MapCtrl', ["$scope", "$filter", "Student", function ($s
     function setMarkerColor(bus_route) {
       switch (true) {
         case bus_route === 101 || bus_route === 201:
-          icon = '/assets/brightGreen.png';
+          icon = '<%= image_url("brightGreen.png") %>';
           break;
         case bus_route === 102 || bus_route === 202:
-          icon = '/assets/lightBlue.png';
+          icon = '<%= image_url("lightBlue.png") %>';
           break;
         case bus_route === 103 || bus_route === 203:
-        case 103:
-          icon = '/assets/darkBlue.png';
+          icon = '<%= image_url("darkBlue.png") %>';
           break;
         case bus_route === 104 || bus_route === 204:
-        case 104:
-          icon = '/assets/pink.png';
+          icon = '<%= image_url("pink.png") %>';
           break;
         case bus_route === 105 || bus_route === 205:
-        case 105:
-          icon = '/assets/darkGreen.png';
+          icon = '<%= image_url("darkGreen.png") %>';
           break;
         case bus_route === 106 || bus_route === 206:
-        case 106:
-          icon = '/assets/purple.png';
+          icon = '<%= image_url("purple.png") %>';
           break;
         case bus_route === 107 || bus_route === 207:
-        case 107:
-          icon = '/assets/yellow.png';
+          icon = '<%= image_url("yellow.png") %>';
           break;
         case bus_route === 108 || bus_route === 208:
-        case 108:
-          icon = '/assets/orange.png';
+          icon = '<%= image_url("orange.png") %>';
           break;
         default:
-          icon = '/assets/red.png';
+          icon = '<%= image_url("red.png") %>';
       }
       return icon;
     };
