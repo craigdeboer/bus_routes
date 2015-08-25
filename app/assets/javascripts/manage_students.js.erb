@@ -115,7 +115,7 @@ busRoutesApp.controller('MapCtrl', ["$scope", "$filter", "Student", function ($s
       position: new google.maps.LatLng(49.170385, -122.796939),
       map: $scope.map,
       label: 'A',
-      icon: '/assets/blue_MarkerA.png',
+      icon: <% image_url("blue_MarkerA.png") %>,
       title: "Surrey High"
     });
     // Set up which map the routes should be displayed on.
