@@ -231,8 +231,17 @@ busRoutesApp.controller('MapCtrl', ["$scope", "$filter", "Student", function ($s
     });
   };
 
-  function removeStudent(index) {
-    student = $scope.students[index];
+  function removeStudent(student_id) {
+    console.log(student_id);
+    for(i=0; i < $scope.students.length; i++) {
+      var compareStudent = $scope.students[i];
+      console.log(compareStudent.id);
+      if (student_id === compareStudent.id) {
+        var student = compareStudent;
+        var index = i;
+        break;
+      }
+    }
     student.$remove();
     $scope.students.splice(index, 1);
   };

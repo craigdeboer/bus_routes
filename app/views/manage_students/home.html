@@ -55,6 +55,18 @@
         <option value="" default selected>All Cities</option>
         <option value="Surrey">Surrey</option>
         <option value="Langley">Langley</option>
+        <option value="Cloverdale">Cloverdale</option>
+        <option value="Abbotsford">Abbotsford</option>
+        <option value="Delta">Delta</option>
+        <option value="New Westminster">New Westminster</option>
+        <option value="Coquitlam">Coquitlam</option>
+        <option value="Burnaby">Burnaby</option>
+        <option value="Port Coquitlam">Port Coquitlam</option>
+        <option value="Port Moody">Port Moody</option>
+        <option value="North Delta">North Delta</option>
+        <option value="Aldergrove">Aldergrove</option>
+        <option value="White Rock">White Rock</option>
+        <option value="Fort Langley">Fort Langley</option>
       </select>
       ORDER By:
       <select ng-model="firstOrderSelection">
@@ -102,7 +114,7 @@
           <td>{{student.city}}</td>
           <td>{{student.postal_code}}</td>
           <td>{{student.bus_route}}</td>
-          <td class="delete-button"><button ng-click="removeStudent($index)">Delete</button></td>
+          <td class="delete-button"><button ng-click="removeStudent(student.id)">Delete</button></td>
         </tr>
       </table>
     </div>
