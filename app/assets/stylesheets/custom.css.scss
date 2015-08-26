@@ -5,6 +5,9 @@
   height: 1000px;
   width: 100%;
 }
+li {
+  list-style: none;
+}
 table {
   margin-bottom: 50px;
 }
@@ -23,6 +26,7 @@ th {
 tr:nth-child(even) {
   background-color: #BEC6D8;
 }
-td.delete-button {
+td.delete-button,
+td.details-button {
   background-color: white;
 }

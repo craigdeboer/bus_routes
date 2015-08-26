@@ -114,9 +114,27 @@
           <td>{{student.city}}</td>
           <td>{{student.postal_code}}</td>
           <td>{{student.bus_route}}</td>
+          <td>{{student.return_trip}}</td>
           <td class="delete-button"><button ng-click="removeStudent(student.id)">Delete</button></td>
+          <td class="details-button"><button ng-click="showStudentDetails(student.id)">Details</button></td>
         </tr>
       </table>
+      <ul ng-show="showDetails" ng-model="detailStudent">
+        <li>Name: {{detailStudent.first_name}} {{detailStudent.last_name}}</li>
+        <li>Route: {{detailStudent.bus_route}}</li>
+        <li>Return: {{detailStudent.return_trip}}</li>
+        <li>School: {{detailStudent.school}}</li>
+        <li>Grade: {{detailStudent.grade}}</li>
+        <li>Phone: {{detailStudent.phone}}</li>
+        <li>Additional Phone: {{detailStudent.addition_phones}}</li>
+        <li>Email: {{detailStudent.email}}</li>
+        <li>Additional Email: {{detailStudent.additional_email}}</li>
+        <li>Parents: {{detailStudent.parent_names}}</li>
+        <li>Address: {{detailStudent.street_address}}</li>
+        <li>City: {{detailStudent.city}}</li>
+        <li>Postal Code: {{detailStudent.postal_code}}</li>
+        <li>Comments: {{detailStudent.comments}}</li>
+      </ul>
     </div>
     <select ng-model="selectedRoute" > 
       <option value="" disabled selected >Select Your Route</option>
