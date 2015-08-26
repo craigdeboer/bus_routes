@@ -8,6 +8,7 @@
   <%= csrf_meta_tags %>
 </head>
 <body>
+  <%= link_to "Bus Routes Home", root_path %>
   <% if user_signed_in? %>
     Logged in as <%= current_user.email %>
     <%= link_to "Log Out", destroy_user_session_path, method: :delete %>

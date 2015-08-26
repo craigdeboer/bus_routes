@@ -3,10 +3,8 @@ class Student < ActiveRecord::Base
   validates :last_name, presence: true, length: { maximum: 50 }
   validates :school, presence: true
   validates :grade, presence: true, inclusion: { in: 1..12 }
-  validates :phone, presence: true
   validates :street_address, presence: true
   validates :city, presence: true
-  validates :postal_code, presence: true
 
   geocoded_by :full_address
   after_validation :geocode, if: :street_address_changed?
@@ -14,25 +12,31 @@ class Student < ActiveRecord::Base
   def self.standard_import(file)
     spreadsheet = Roo::Excelx.new(file.path)
     (1..spreadsheet.last_row).each do |row|
-      school = spreadsheet.cell(row, 1)
-      bus_route = spreadsheet.cell(row, 2)
-      last_name = spreadsheet.cell(row, 3)
+      comments = spreadsheet.cell(row, 1)
+      school = spreadsheet.cell(row, 2)
+      bus_route = spreadsheet.cell(row, 3)
       first_name = spreadsheet.cell(row, 4)
-      grade = spreadsheet.cell(row, 5)
-      phone = spreadsheet.cell(row, 6)
-      additional_phones = spreadsheet.cell(row, 7)
-      email = spreadsheet.cell(row, 8)
-      additional_email = spreadsheet.cell(row, 9)
-      parent_names = spreadsheet.cell(row, 10)
-      street_address = spreadsheet.cell(row, 11)
-      city = spreadsheet.cell(row, 12)
-      postal_code = spreadsheet.cell(row, 13)
-      return_trip = spreadsheet.cell(row, 14)
+      last_name = spreadsheet.cell(row, 5)
+      grade = spreadsheet.cell(row, 6)
+      stop = spreadsheet.cell(row, 10)
+      mon_thurs = spreadsheet.cell(row, 11)
+      friday = spreadsheet.cell(row, 12)
+      phone = spreadsheet.cell(row, 13)
+      additional_phones = spreadsheet.cell(row, 14)
+      email = spreadsheet.cell(row, 15)
+      additional_email = spreadsheet.cell(row, 16)
+      parent_names = spreadsheet.cell(row, 17)
+      street_address = spreadsheet.cell(row, 18)
+      city = spreadsheet.cell(row, 19)
+      postal_code = spreadsheet.cell(row, 20)
+      return_trip = spreadsheet.cell(row, 21)
       student = Student.new(first_name: first_name, last_name: last_name, school: school, 
                             grade: grade, phone: phone, email: email, street_address: street_address, 
                             city: city, postal_code: postal_code, bus_route: bus_route,
                             additional_phones: additional_phones, additional_email: additional_email,
-                            parent_names: parent_names, return_trip: return_trip)
+                            parent_names: parent_names, return_trip: return_trip,
+                            comments: comments, stop: stop, mon_thurs: mon_thurs, friday: friday,
+                            return_trip: return_trip)
       student.save!
     end
   end
