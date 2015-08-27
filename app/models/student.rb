@@ -2,7 +2,7 @@ class Student < ActiveRecord::Base
   validates :first_name, presence: true, length: { maximum: 50 }
   validates :last_name, presence: true, length: { maximum: 50 }
   validates :school, presence: true
-  validates :grade, presence: true, inclusion: { in: 1..12 }
+  validates :grade, presence: true, inclusion: { in: 0..12 }
   validates :street_address, presence: true
   validates :city, presence: true
 
