@@ -43,7 +43,7 @@ class Student < ActiveRecord::Base
                             comments: comments, stop: stop, mon_thurs: mon_thurs, friday: friday,
                             return_trip: return_trip)
       student.save!
-      sleep .20
+      sleep 0.20
     end
   end
   private
