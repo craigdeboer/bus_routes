@@ -1,10 +1,10 @@
 class Student < ActiveRecord::Base
-  validates :first_name, presence: true, length: { maximum: 50 }
-  validates :last_name, presence: true, length: { maximum: 50 }
-  validates :school, presence: true
-  validates :grade, presence: true, inclusion: { in: 0..12 }
-  validates :street_address, presence: true
-  validates :city, presence: true
+  #validates :first_name, presence: true, length: { maximum: 50 }
+  #validates :last_name, presence: true, length: { maximum: 50 }
+  #validates :school, presence: true
+  #validates :grade, presence: true, inclusion: { in: 0..12 }
+  #validates :street_address, presence: true
+  #validates :city, presence: true
 
   geocoded_by :full_address
   after_validation :geocode, if: :street_address_changed?
@@ -43,6 +43,7 @@ class Student < ActiveRecord::Base
                             comments: comments, stop: stop, mon_thurs: mon_thurs, friday: friday,
                             return_trip: return_trip)
       student.save!
+      sleep .20
     end
   end
   private
