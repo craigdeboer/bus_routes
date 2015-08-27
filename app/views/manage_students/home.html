@@ -170,6 +170,10 @@
     <button ng-click="printMap()">Print Map</button> 
     <button ng-click="resetMarkers(results)">Show Only Students In List On Map</button> 
     <button ng-click="addMarkers(results)">Add Students In List To Map</button> 
+    <div>
+      <button ng-click="seatsFilled(results)">Number of Seats Assigned For This Group</button>
+      <p>{{seatsAssigned}}</p>
+    </div>
     <div class="edit-student">
       <p>{{clickedStudent.first_name}}</p>
       <p>{{clickedStudent.last_name}}</p>

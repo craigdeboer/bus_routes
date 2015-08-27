@@ -17,7 +17,7 @@ class Student < ActiveRecord::Base
       bus_route = spreadsheet.cell(row, 3)
       first_name = spreadsheet.cell(row, 4)
       last_name = spreadsheet.cell(row, 5)
-      grade = spreadsheet.cell(row, 6)
+      temp_grade = spreadsheet.cell(row, 6)
       stop = spreadsheet.cell(row, 10)
       mon_thurs = spreadsheet.cell(row, 11)
       friday = spreadsheet.cell(row, 12)
@@ -30,6 +30,11 @@ class Student < ActiveRecord::Base
       city = spreadsheet.cell(row, 19)
       postal_code = spreadsheet.cell(row, 20)
       return_trip = spreadsheet.cell(row, 21)
+      if temp_grade == "K" || temp_grade == "k"
+        grade = 0
+      else
+        grade = temp_grade
+      end
       student = Student.new(first_name: first_name, last_name: last_name, school: school, 
                             grade: grade, phone: phone, email: email, street_address: street_address, 
                             city: city, postal_code: postal_code, bus_route: bus_route,
