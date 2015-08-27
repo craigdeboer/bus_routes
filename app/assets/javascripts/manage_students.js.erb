@@ -342,13 +342,13 @@ busRoutesApp.controller('MapCtrl', ["$scope", "$filter", "Student", function ($s
         break;
       }
     }
+    student.$update();
     marker = studentMarkers[$scope.clickedStudent.id];
     icon = setMarkerColor($scope.clickedStudent.bus_route);
     marker.icon = icon;
     marker.setMap(null);
     marker.setMap($scope.map);
     $scope.clickedStudent = {};
-    console.log($scope.students);
   };
   $scope.printMap = function() {
     var content = window.document.getElementById("map-canvas"); // get you map details

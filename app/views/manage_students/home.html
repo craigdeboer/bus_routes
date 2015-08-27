@@ -21,6 +21,10 @@
   </div>
   <div class="col-md-12" ng-controller="MapCtrl">
     <div class="col-md-12">
+      <div class="search-box">
+        Search:
+        <input class="form-control" type="text" placeholder="Search" ng-model="Search">
+      </div>
       FILTERS:
       <select ng-model="Route" ng-change="deleteRouteFilter()"> 
         <option value="" default selected>All Routes</option>
@@ -95,46 +99,53 @@
           <th>Last Name</th>
           <th class="narrow">School</th>
           <th class="narrow">Grade</th>
-          <th>Phone</th>
-          <th>Email</th>
           <th>Street Address</th>
           <th>City</th>
-          <th>Postal Code</th>
           <th class="narrow">Route</th>
+          <th>Stop Location</th>
+          <th class="narrow">M-T</th>
+          <th class="narrow">Friday</th>
+          <th class="narrow">1 or 2 Way</th>
+          <th class="table-button"></th>
+          <th class="table-button"></th>
         </tr>
 <!-- The 'as results' allows the result of the filter to be stored in a variable called results so the information can be used elsewhere. In this case it is used to display the number of students that meet the user's filter criteria. -->
-<tr ng-repeat="student in students | filter:{bus_route:Route} | filter:{school:School} |filter:City | orderBy:[firstOrderSelection, secondOrderSelection] as results">
+<tr ng-repeat="student in students | filter:Search | filter:{bus_route:Route} | filter:{school:School} |filter:City | orderBy:[firstOrderSelection, secondOrderSelection] as results">
           <td>{{student.first_name}}</td>
           <td>{{student.last_name}}</td>
           <td>{{student.school}}</td>
           <td>{{student.grade}}</td>
-          <td>{{student.phone}}</td>
-          <td>{{student.email}}</td>
           <td>{{student.street_address}}</td>
           <td>{{student.city}}</td>
-          <td>{{student.postal_code}}</td>
           <td>{{student.bus_route}}</td>
+          <td>{{student.stop}}</td>
+          <td>{{student.mon_thurs}}</td>
+          <td>{{student.friday}}</td>
           <td>{{student.return_trip}}</td>
           <td class="delete-button"><button ng-click="removeStudent(student.id)">Delete</button></td>
           <td class="details-button"><button ng-click="showStudentDetails(student.id)">Details</button></td>
         </tr>
       </table>
       <ul ng-show="showDetails" ng-model="detailStudent">
-        <li>Name: {{detailStudent.first_name}} {{detailStudent.last_name}}</li>
-        <li>Route: {{detailStudent.bus_route}}</li>
-        <li>Return: {{detailStudent.return_trip}}</li>
-        <li>School: {{detailStudent.school}}</li>
-        <li>Grade: {{detailStudent.grade}}</li>
-        <li>Phone: {{detailStudent.phone}}</li>
-        <li>Additional Phone: {{detailStudent.addition_phones}}</li>
-        <li>Email: {{detailStudent.email}}</li>
-        <li>Additional Email: {{detailStudent.additional_email}}</li>
-        <li>Parents: {{detailStudent.parent_names}}</li>
-        <li>Address: {{detailStudent.street_address}}</li>
-        <li>City: {{detailStudent.city}}</li>
-        <li>Postal Code: {{detailStudent.postal_code}}</li>
-        <li>Comments: {{detailStudent.comments}}</li>
+        <li><span class="heading">Name:</span> {{detailStudent.first_name}} {{detailStudent.last_name}}</li>
+        <li><span class="heading">Route:</span> {{detailStudent.bus_route}}</li>
+        <li><span class="heading">Stop:</span> {{detailStudent.stop}}</li>
+        <li><span class="heading">Mon-Thurs Time:</span> {{detailStudent.mon_thurs}}</li>
+        <li><span class="heading">Friday Time:</span> {{detailStudent.friday}}</li>
+        <li><span class="heading">Return:</span> {{detailStudent.return_trip}}</li>
+        <li><span class="heading">School:</span> {{detailStudent.school}}</li>
+        <li><span class="heading">Grade:</span> {{detailStudent.grade}}</li>
+        <li><span class="heading">Phone:</span> {{detailStudent.phone}}</li>
+        <li><span class="heading">Additional Phone:</span> {{detailStudent.addition_phones}}</li>
+        <li><span class="heading">Email:</span> {{detailStudent.email}}</li>
+        <li><span class="heading">Additional Email:</span> {{detailStudent.additional_email}}</li>
+        <li><span class="heading">Parents:</span> {{detailStudent.parent_names}}</li>
+        <li><span class="heading">Address:</span> {{detailStudent.street_address}}</li>
+        <li><span class="heading">City:</span> {{detailStudent.city}}</li>
+        <li><span class="heading">Postal Code:</span> {{detailStudent.postal_code}}</li>
+        <li><span class="heading">Comments:</span> {{detailStudent.comments}}</li>
       </ul>
+      <button ng-show="showDetails" ng-click="showDetails = false">Hide Student Details</button> 
     </div>
     <select ng-model="selectedRoute" > 
       <option value="" disabled selected >Select Your Route</option>
@@ -164,6 +175,9 @@
       <p>{{clickedStudent.last_name}}</p>
       <p>{{clickedStudent.school}}</p>
       <input class="form-control" type="text" placeholder="Route" ng-model="clickedStudent.bus_route">
+      <input class="form-control" type="text" placeholder="Stop" ng-model="clickedStudent.stop">
+      <input class="form-control" type="text" placeholder="Mon-Thurs Time" ng-model="clickedStudent.mon_thurs">
+      <input class="form-control" type="text" placeholder="Friday Time" ng-model="clickedStudent.friday">
       <button ng-click="updateStudent()">Update Student</button>
     </div>
 

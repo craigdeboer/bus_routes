@@ -25,6 +25,9 @@ module Api
     end
 
     def update
+      student = Student.find(params[:id])
+      student.update(student_params)
+      render nothing: true, status: 201
     end
 
     def destroy
@@ -36,7 +39,7 @@ module Api
     private
 
     def student_params
-      params.require(:student).permit(:first_name, :last_name, :school, :grade, :phone, :email, :street_address, :city, :postal_code)
+      params.require(:student).permit(:first_name, :last_name, :school, :grade, :phone, :email, :street_address, :city, :postal_code, :additional_phones, :bus_route, :return_trip, :additional_email, :comments, :parent_names, :stop, :mon_thurs, :friday)
     end
   end
 end
