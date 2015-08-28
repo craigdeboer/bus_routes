@@ -37,7 +37,7 @@
         <option value="106">106</option>
         <option value="107">107</option>
         <option value="108">108</option>
-        <option value="201">101</option>
+        <option value="201">201</option>
         <option value="202">202</option>
         <option value="203">203</option>
         <option value="204">204</option>
@@ -124,9 +124,35 @@
           <td>{{student.return_trip}}</td>
           <td class="delete-button"><button ng-click="removeStudent(student.id)">Delete</button></td>
           <td class="details-button"><button ng-click="showStudentDetails(student.id)">Details</button></td>
+          <td class="edit-button"><button ng-click="showStudentEdit(student.id)">Edit</button></td>
         </tr>
       </table>
-      <ul ng-show="showDetails" ng-model="detailStudent">
+      <form id="edit-student-form" ng-cloak ng-show="editDetails" ng-submit="updateEditStudent()" >
+        <div class="form-group">
+          <label>First Name:</label><input class="form-control" type="text" ng-model="editStudent.first_name">
+          <label>Last Name:</label><input class="form-control" type="text" ng-model="editStudent.last_name">
+          <label>School:</label><input class="form-control" type="text" ng-model="editStudent.school">
+          <label>Grade:</label><input class="form-control" type="text" ng-model="editStudent.grade">
+          <label>Bus Route:</label><input class="form-control" type="text" ng-model="editStudent.bus_route">
+          <label>Stop:</label><input class="form-control" type="text" ng-model="editStudent.stop">
+          <label>Mon-Thurs:</label><input class="form-control" type="text" ng-model="editStudent.mon_thurs">
+          <label>Friday:</label><input class="form-control" type="text" ng-model="editStudent.friday">
+          <label>1 or 2 Way:</label><input class="form-control" type="text" ng-model="editStudent.return_trip">
+          <label>Phone:</label><input class="form-control" type="text" ng-model="editStudent.phone">
+          <label>Additional Phones:</label><input class="form-control" type="text" ng-model="editStudent.additional_phones">
+          <label>Email:</label><input class="form-control" type="text" ng-model="editStudent.email">
+          <label>Additional Email:</label><input class="form-control" type="text" ng-model="editStudent.additional_email">
+          <label>Parent Names:</label><input class="form-control" type="text" ng-model="editStudent.parent_names">
+          <label>Street Address:</label><input class="form-control" type="text" ng-model="editStudent.street_address">
+          <label>City:</label><input class="form-control" type="text" ng-model="editStudent.city">
+          <label>Postal Code:</label><input class="form-control" type="text" ng-model="editStudent.postal_code">
+          <label>Comments:</label><br>
+          <textarea ng-model="editStudent.comments"></textarea> <br>
+          <input type="submit" value="Save Changes">
+          <button ng-click="editDetails = false">Close Without Saving</button>
+        </div>
+      </form>
+      <ul id="details-list" ng-show="showDetails" ng-model="detailStudent">
         <li><span class="heading">Name:</span> {{detailStudent.first_name}} {{detailStudent.last_name}}</li>
         <li><span class="heading">Route:</span> {{detailStudent.bus_route}}</li>
         <li><span class="heading">Stop:</span> {{detailStudent.stop}}</li>
@@ -143,13 +169,15 @@
         <li><span class="heading">Address:</span> {{detailStudent.street_address}}</li>
         <li><span class="heading">City:</span> {{detailStudent.city}}</li>
         <li><span class="heading">Postal Code:</span> {{detailStudent.postal_code}}</li>
-        <li><span class="heading">Comments:</span> {{detailStudent.comments}}</li>
+        <li><span class="heading">Comments:</span>
+          <div id="comment-details"><pre>{{detailStudent.comments}}</pre></div>
+        </li>
         <li><span class="heading">Latitude:</span> {{detailStudent.latitude}}</li>
         <li><span class="heading">Longitude:</span> {{detailStudent.longitude}}</li>
       </ul>
       <button ng-show="showDetails" ng-click="showDetails = false">Hide Student Details</button> 
     </div>
-    <select ng-model="selectedRoute" > 
+    <select ng-model="selectedRoute" ng-hide="true"> 
       <option value="" disabled selected >Select Your Route</option>
       <option value="101" >101</option>
       <option value="102" >102</option>
@@ -168,7 +196,7 @@
       <option value="207" >207</option>
       <option value="208" >208</option>
     </select>
-    <button ng-click="firstStep()">Show this route</button> 
+    <button ng-hide="true" ng-click="firstStep()">Show this route</button> 
     <button ng-click="printMap()">Print Map</button> 
     <button ng-click="resetMarkers(results)">Show Only Students In List On Map</button> 
     <button ng-click="addMarkers(results)">Add Students In List To Map</button> 

@@ -61,8 +61,10 @@ busRoutesApp.controller('MapCtrl', ["$scope", "$filter", "Student", function ($s
   $scope.selectedRoute = "";
   $scope.seatsAssigned = 0;
   $scope.showDetails = false;
+  $scope.editDetails = false;
   $scope.firstOrderSelection = "last_name";
   $scope.clickedStudent = {"first_name":"Choose student by clicking on their marker"};
+  $scope.editStudent = {};
   $scope.routes = {
     "101": {
       "waypoints": {
@@ -76,7 +78,7 @@ busRoutesApp.controller('MapCtrl', ["$scope", "$filter", "Student", function ($s
   var directionsDisplay2;
   var directionsService = new google.maps.DirectionsService();
   var markerIdCounter = 0; // used to assign unique id to each marker added by user
-  var routeMarkers = {}; // used to track the markers created by the user
+//  var routeMarkers = {}; // used to track the markers created by the user
   var studentMarkers = {};
   var existingStudentMarkers = [];
   var infowindow = new google.maps.InfoWindow({
@@ -110,10 +112,10 @@ busRoutesApp.controller('MapCtrl', ["$scope", "$filter", "Student", function ($s
     // Add an event listener so we know when a user clicks on the map.
     // This click event will allow us to have access to the LatLng that 
     // was clicked.
-    $scope.map.addListener('click', function(event) {
-      $scope.lastLatLng = event.latLng
-      insertMarker(event.latLng);
-    });
+//    $scope.map.addListener('click', function(event) {
+//      $scope.lastLatLng = event.latLng
+//      insertMarker(event.latLng);
+//    });
     // Set the marker for the schools.
     // *Change this to iterate through an array of all
     // six schools to put them all on the map.
@@ -209,30 +211,54 @@ busRoutesApp.controller('MapCtrl', ["$scope", "$filter", "Student", function ($s
     };
   };   
   function setMarkerColor(bus_route) {
-    switch (true) {
-      case bus_route === 101 || bus_route === 201:
+    switch (bus_route) {
+      case 101: 
+        icon = '<%= image_url("brightBlue.png") %>';
+        break;
+      case 102: 
         icon = '<%= image_url("brightGreen.png") %>';
         break;
-      case bus_route === 102 || bus_route === 202:
+      case 103: 
+        icon = '<%= image_url("camoGreen.png") %>';
+        break;
+      case 104: 
+        icon = '<%= image_url("cream.png") %>';
+        break;
+      case 105: 
+        icon = '<%= image_url("grey.png") %>';
+        break;
+      case 106: 
         icon = '<%= image_url("lightBlue.png") %>';
         break;
-      case bus_route === 103 || bus_route === 203:
-        icon = '<%= image_url("darkBlue.png") %>';
+      case 107: 
+        icon = '<%= image_url("lightOrange.png") %>';
         break;
-      case bus_route === 104 || bus_route === 204:
+      case 108: 
+        icon = '<%= image_url("medGreen.png") %>';
+        break;
+      case 201: 
+        icon = '<%= image_url("offWhite.png") %>';
+        break;
+      case 202: 
+        icon = '<%= image_url("orange.png") %>';
+        break;
+      case 203: 
+        icon = '<%= image_url("paleYellow.png") %>';
+        break;
+      case 204: 
         icon = '<%= image_url("pink.png") %>';
         break;
-      case bus_route === 105 || bus_route === 205:
-        icon = '<%= image_url("darkGreen.png") %>';
-        break;
-      case bus_route === 106 || bus_route === 206:
+      case 205: 
         icon = '<%= image_url("purple.png") %>';
         break;
-      case bus_route === 107 || bus_route === 207:
-        icon = '<%= image_url("yellow.png") %>';
+      case 206: 
+        icon = '<%= image_url("tan.png") %>';
         break;
-      case bus_route === 108 || bus_route === 208:
-        icon = '<%= image_url("orange.png") %>';
+      case 207: 
+        icon = '<%= image_url("teal.png") %>';
+        break;
+      case 208: 
+        icon = '<%= image_url("yellow.png") %>';
         break;
       default:
         icon = '<%= image_url("red.png") %>';
@@ -269,6 +295,25 @@ busRoutesApp.controller('MapCtrl', ["$scope", "$filter", "Student", function ($s
     $scope.detailStudent = student;
     $scope.showDetails = true;
   };
+  $scope.showStudentEdit = function(student_id) {
+    for(i=0; i < $scope.students.length; i++) {
+      var compareStudent = $scope.students[i];
+      if (student_id === compareStudent.id) {
+        var student = compareStudent;
+        var index = i;
+        break;
+      }
+    }
+    $scope.editStudent = student;
+    $scope.editDetails = true;
+  };
+  $scope.updateEditStudent = function() {
+    var student = $scope.editStudent;
+    student.$update();
+    $scope.editDetails = false;
+  };
+  
+
 
   $scope.firstStep = function() {
     // alert(Object.keys(markers).length);
