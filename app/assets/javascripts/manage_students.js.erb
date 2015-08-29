@@ -222,7 +222,7 @@ busRoutesApp.controller('MapCtrl', ["$scope", "$filter", "Student", function ($s
        marker.windowContent += student.first_name + " " + student.school + " " + student.grade + "<br>";
      } else {
        id = student.id;
-       windowContent = student.last_name.toUpperCase() +  "<br>" + student.first_name + " " + student.school + " " + student.grade + "<br>"; 
+       windowContent = student.last_name.toUpperCase() +  "<br>" + student.street_address + "<br>" + student.first_name + " " + student.school + " " + student.grade + "<br>"; 
        icon = setMarkerColor(student.bus_route); 
        studentLatLng = new google.maps.LatLng(student.latitude, student.longitude);
        marker = new google.maps.Marker({
@@ -359,6 +359,24 @@ busRoutesApp.controller('MapCtrl', ["$scope", "$filter", "Student", function ($s
   $scope.updateEditStudent = function() {
     var student = $scope.editStudent;
     student.$update();
+    if (studentMarkers[student.id]) {
+      var marker = studentMarkers[student.id];  
+      var address = student.street_address + "," + student.city + "," + "BC" + " " + student.postal_code;
+      if (student.postal_code === null) {
+        student.postal_code = " ";
+      }
+      var geocoder = new google.maps.Geocoder();
+      geocoder.geocode( {'address':address}, function(results, status) {
+        if (status === google.maps.GeocoderStatus.OK) {
+          marker.windowContent += "Add this";
+          marker.position = results[0].geometry.location;
+          marker.setMap(null);
+          marker.setMap($scope.map);
+        } else {
+          alert("Student marker update wasn't successful for the following reason: " + status);
+        }
+      });
+    }
     $scope.editDetails = false;
   };
   
