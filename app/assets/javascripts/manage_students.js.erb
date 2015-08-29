@@ -126,6 +126,55 @@ busRoutesApp.controller('MapCtrl', ["$scope", "$filter", "Student", function ($s
       icon: '<%= image_url("blue_MarkerA.png") %>',
       title: "Surrey High"
     });
+    marker = new google.maps.Marker({
+      position: new google.maps.LatLng(49.112364, -122.738985),
+      map: $scope.map,
+      label: 'A',
+      icon: '<%= image_url("blue_MarkerA.png") %>',
+      title: "William of Orange"
+    });
+    marker = new google.maps.Marker({
+      position: new google.maps.LatLng(49.096882, -122.6161698),
+      map: $scope.map,
+      label: 'A',
+      icon: '<%= image_url("blue_MarkerA.png") %>',
+      title: "Credo Christian Elementary"
+    });
+    marker = new google.maps.Marker({
+      position: new google.maps.LatLng(49.095947, -122.617342),
+      map: $scope.map,
+      label: 'A',
+      icon: '<%= image_url("blue_MarkerA.png") %>',
+      title: "Credo Christian High"
+    });
+    marker = new google.maps.Marker({
+      position: new google.maps.LatLng(49.0885572, -122.5894669),
+      map: $scope.map,
+      label: 'A',
+      icon: '<%= image_url("blue_MarkerA.png") %>',
+      title: "Langley Christian Elementary"
+    });
+    marker = new google.maps.Marker({
+      position: new google.maps.LatLng(49.0885595, -122.5951462),
+      map: $scope.map,
+      label: 'A',
+      icon: '<%= image_url("blue_MarkerA.png") %>',
+      title: "Langley Christian Middle/High"
+    });
+    marker = new google.maps.Marker({
+      position: new google.maps.LatLng(49.164418, -122.773024),
+      map: $scope.map,
+      label: 'A',
+      icon: '<%= image_url("blue_MarkerA.png") %>',
+      title: "Surrey Christian Elementary"
+    });
+    marker = new google.maps.Marker({
+      position: new google.maps.LatLng(49.110539, -122.726684),
+      map: $scope.map,
+      label: 'A',
+      icon: '<%= image_url("blue_MarkerA.png") %>',
+      title: "Cloverdale Christian"
+    });
     
     // Set up which map the routes should be displayed on.
     directionsDisplay1.setMap($scope.map);
