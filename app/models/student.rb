@@ -49,6 +49,9 @@ class Student < ActiveRecord::Base
   private
 
   def full_address
-    address = [self.street_address, self.city, "BC", "Canada"].join(', ')
+    if self.postal_code == nil
+      self.postal_code = " "
+    end
+    address = [self.street_address, self.city, "BC", self.postal_code].join(', ')
   end
 end

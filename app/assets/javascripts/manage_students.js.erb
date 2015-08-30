@@ -211,6 +211,7 @@ busRoutesApp.controller('MapCtrl', ["$scope", "$filter", "Student", function ($s
     var id;
     var windowContent;
     var icon;
+    var studentLatLng;
     var label = "1";
     angular.forEach(results, function(student) {
      var existingAddress = checkForExistingMarker(student.latitude, student.longitude);
@@ -224,7 +225,11 @@ busRoutesApp.controller('MapCtrl', ["$scope", "$filter", "Student", function ($s
        id = student.id;
        windowContent = student.last_name.toUpperCase() +  "<br>" + student.street_address + "<br>" + student.first_name + " " + student.school + " " + student.grade + "<br>"; 
        icon = setMarkerColor(student.bus_route); 
-       studentLatLng = new google.maps.LatLng(student.latitude, student.longitude);
+       if (student.updatedLocation) {
+         studentLatLng = student.updatedLocation;
+       } else {
+         studentLatLng = new google.maps.LatLng(student.latitude, student.longitude);
+       }
        marker = new google.maps.Marker({
          id: id,
          position: studentLatLng,
@@ -354,24 +359,33 @@ busRoutesApp.controller('MapCtrl', ["$scope", "$filter", "Student", function ($s
       }
     }
     $scope.editStudent = student;
+    $scope.editStudent.original_address = student.street_address;
+    $scope.editStudent.original_city = student.city;
+    $scope.editStudent.original_postal_code = student.postal_code;
     $scope.editDetails = true;
   };
   $scope.updateEditStudent = function() {
     var student = $scope.editStudent;
+    var addressChanged = $scope.editStudent.original_address !== student.street_address;
+    var cityChanged = $scope.editStudent.original_city !== student.city;
+    var postalCodeChanged = $scope.editStudent.original_postal_code !== student.postal_code;
     student.$update();
-    if (studentMarkers[student.id]) {
-      var marker = studentMarkers[student.id];  
-      var address = student.street_address + "," + student.city + "," + "BC" + " " + student.postal_code;
+    if (addressChanged || cityChanged || postalCodeChanged) {
       if (student.postal_code === null) {
         student.postal_code = " ";
       }
+      var address = student.street_address + "," + student.city + "," + "BC" + " " + student.postal_code;
       var geocoder = new google.maps.Geocoder();
       geocoder.geocode( {'address':address}, function(results, status) {
         if (status === google.maps.GeocoderStatus.OK) {
-          marker.windowContent += "Add this";
-          marker.position = results[0].geometry.location;
-          marker.setMap(null);
-          marker.setMap($scope.map);
+          if (studentMarkers[student.id]) {
+            var marker = studentMarkers[student.id];  
+            marker.windowContent += "Address Changed To: " + student.street_address;
+            marker.position = results[0].geometry.location;
+            marker.setMap(null);
+            marker.setMap($scope.map);
+          }
+          student.updatedLocation = results[0].geometry.location;
         } else {
           alert("Student marker update wasn't successful for the following reason: " + status);
         }
@@ -523,14 +537,3 @@ busRoutesApp.controller('MapCtrl', ["$scope", "$filter", "Student", function ($s
     $scope.seatsAssigned = seatCount;
   };
 }]);
-
-
-
-
-
-
-
-
-
-
-
