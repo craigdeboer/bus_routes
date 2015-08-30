@@ -7,7 +7,7 @@ class Student < ActiveRecord::Base
   #validates :city, presence: true
 
   geocoded_by :full_address
-  after_validation :geocode, if: :street_address_changed?
+  after_validation :geocode, if: :any_address_components_changed?
 
   def self.standard_import(file)
     spreadsheet = Roo::Excelx.new(file.path)
@@ -47,6 +47,10 @@ class Student < ActiveRecord::Base
     end
   end
   private
+  
+  def any_address_components_changed?
+    :street_address_changed? || :city_changed? || :postal_code_changed?
+  end
 
   def full_address
     if self.postal_code == nil
