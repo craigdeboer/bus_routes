@@ -49,7 +49,7 @@ class Student < ActiveRecord::Base
   private
   
   def any_address_components_changed?
-    :street_address_changed? || :city_changed? || :postal_code_changed?
+    street_address_changed? || city_changed? || postal_code_changed?
   end
 
   def full_address

@@ -63,6 +63,7 @@ busRoutesApp.controller('MapCtrl', ["$scope", "$filter", "Student", function ($s
   $scope.showDetails = false;
   $scope.editDetails = false;
   $scope.beginSelection = false;
+  $scope.bulkAssignmentRoute = "";
   $scope.selections = [];
   $scope.firstOrderSelection = "last_name";
   $scope.clickedStudent = {"first_name":"Choose student by clicking on their marker"};
@@ -535,6 +536,15 @@ busRoutesApp.controller('MapCtrl', ["$scope", "$filter", "Student", function ($s
   $scope.removeFromSelections = function(index) {
     $scope.selections.splice(index, 1);
   };
+  $scope.bulkAssignRoute = function() {
+    var route = parseInt($scope.bulkAssignmentRoute);
+    angular.forEach($scope.selections, function(student) {
+      student.bus_route = route;
+      student.$update();
+    });
+  };
+    
+
   $scope.seatsFilled = function(results) {
     var seatCount = 0;
     angular.forEach(results, function(student) {

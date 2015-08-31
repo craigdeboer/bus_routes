@@ -39,7 +39,7 @@ module Api
     private
 
     def student_params
-      params.require(:student).permit(:first_name, :last_name, :school, :grade, :phone, :email, :street_address, :city, :postal_code, :additional_phones, :bus_route, :return_trip, :additional_email, :comments, :parent_names, :stop, :mon_thurs, :friday)
+      params.require(:student).permit(:first_name, :last_name, :school, :grade, :phone, :email, :street_address, :city, :postal_code, :additional_phones, :bus_route, :return_trip, :additional_email, :comments, :parent_names, :stop, :mon_thurs, :friday, :latitude, :longitude)
     end
   end
 end

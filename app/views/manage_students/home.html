@@ -214,7 +214,11 @@
       <input class="form-control" type="text" placeholder="Friday Time" ng-model="clickedStudent.friday">
       <button ng-click="updateStudent()">Update Student</button>
     </div>
+    <p ng-show="beginSelection">You are in Bulk Route Assignment mode.
+    <button ng-click="beginSelection = false">Click here to exit this mode</button>
+    </p>
     <button ng-click="beginSelection = true">Start Selecting Students</button>
+    <input type="text" placeholder="Route" ng-model="bulkAssignmentRoute">
     <div class="multiple-edit" >
       <ul ng-repeat="selection in selections">
         <li>
@@ -223,6 +227,7 @@
         </li>
       </ul>
     <button ng-click="clearSelected()">Clear Students</button>
+    <button ng-click="bulkAssignRoute()">Assign Route To Selected Students</button>
     </div>
     <div id="map-canvas">
     </div>
