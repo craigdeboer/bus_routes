@@ -214,25 +214,17 @@
       <input class="form-control" type="text" placeholder="Friday Time" ng-model="clickedStudent.friday">
       <button ng-click="updateStudent()">Update Student</button>
     </div>
-
-
+    <button ng-click="beginSelection = true">Start Selecting Students</button>
+    <div class="multiple-edit" >
+      <ul ng-repeat="selection in selections">
+        <li>
+          {{selection.first_name}} {{selection.last_name}}
+          <button ng-click="removeFromSelections($index)">Remove</button>
+        </li>
+      </ul>
+    <button ng-click="clearSelected()">Clear Students</button>
+    </div>
     <div id="map-canvas">
     </div>
   </div>
 </div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
