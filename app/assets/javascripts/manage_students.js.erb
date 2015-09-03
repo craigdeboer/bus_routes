@@ -2,8 +2,69 @@
 // The module takes two arguments: the name of the module and 
 // an array of dependencies. The ng-app directive must reference the 
 // name you choose for your module here.
-var busRoutesApp = angular.module('busRoutesApp', ["ngResource"]);
+var busRoutesApp = angular.module('busRoutesApp', [
+    "ngResource",
+    "bus_routes.map"])
 
+  .service('Shared', function() {
+    var shared = {};
+    shared.map = {};
+    return shared;
+  })
+;
+angular.module('bus_routes.schools_model', [])
+
+  .service('SchoolsModel', function() {
+    var model = this;
+    schools = [
+    {"name": "Surrey Christian High", "latitude": "49.170385", "longitude": "-122.796939"},
+    {"name": "William of Orange", "latitude": "49.112364", "longitude": "-122.738985"},
+    {"name": "Credo Christian Elementary", "latitude": "49.096882", "longitude": "-122.6161698"},
+    {"name": "Credo Christian High", "latitude": "49.095947", "longitude": "-122.617342"},
+    {"name": "Langley Christian Elementary", "latitude": "49.0885572", "longitude": "-122.5894669"},
+    {"name": "Langley Christian Middle/High", "latitude": "49.0885595", "longitude": "-122.5951462"},
+    {"name": "Surrey Christian Elementary", "latitude": "49.164418", "longitude": "-122.773024"},
+    {"name": "Cloverdale Christian", "latitude": "49.110539", "longitude": "-122.726684"},
+    ];
+    model.getSchools = function() {
+      return schools;
+    };
+  })
+;
+
+
+angular.module('bus_routes.map', [
+  'bus_routes.schools_model'
+])
+
+  .controller('MapCtrl', ["$scope", "Shared", "SchoolsModel", function($scope, Shared, SchoolsModel) {
+
+    function initialize() {
+      $scope.schools = SchoolsModel.getSchools(); // Load the schools from the schools model
+      $scope.shared = Shared; // Load variables to be shared between submodules
+      // Set map options.
+      var mapOptions = {
+        center: { lat: 49.1387, lng: -122.8218 },
+        zoom: 13
+      };
+      // Define the map.
+      $scope.shared.map = new google.maps.Map(document.getElementById("map-canvas"), mapOptions);
+      // Set the markers for the schools.
+      angular.forEach($scope.schools, function(school) {
+        var marker = new google.maps.Marker({
+          position: new google.maps.LatLng(school.latitude, school.longitude),
+          map: $scope.shared.map,
+          label: 'A',
+          icon: '<%= image_url("blue_MarkerA.png") %>',
+          title: school.name
+        });
+      });
+    }; // End of initialize function.
+    // Wait for the window to load and then run the initialize function.
+    google.maps.event.addDomListener(window, 'load', initialize);
+    
+  }])
+;
 // This factory defines the connection to the back end database and is
 // referenced in the controller using the name which is the first
 // argument.
@@ -44,7 +105,7 @@ busRoutesApp.controller('StudentsListCtrl', ["$scope", "Student", function ($sco
   };
 }]);
 
-busRoutesApp.controller('MapCtrl', ["$scope", "$filter", "Student", function ($scope, $filter, Student) {
+busRoutesApp.controller('MainCtrl', ["$scope", "$filter", "Student", "Shared", function ($scope, $filter, Student, Shared) {
 // If I just perform the Student.query() and then execute 
 // the setMarkers function, it fails because I'm trying to access
 // the $scope.students before the query is completed.
@@ -55,6 +116,7 @@ busRoutesApp.controller('MapCtrl', ["$scope", "$filter", "Student", function ($s
   var students = Student.query(function() {
     $scope.students = students;
   });
+  $scope.shared = Shared;
   $scope.seatsAssigned = 0;
   $scope.showDetails = false;
   $scope.editDetails = false;
@@ -76,79 +138,8 @@ busRoutesApp.controller('MapCtrl', ["$scope", "$filter", "Student", function ($s
   $scope.addMarkers = addMarkers;
   $scope.removeStudent = removeStudent;
   
-  function initialize() {
-    // Set map options.
-    var mapOptions = {
-      center: { lat: 49.1387, lng: -122.8218 },
-      zoom: 13
-    };
-    // Define the map.
-    $scope.map = new google.maps.Map(document.getElementById("map-canvas"), mapOptions);
-    // Set the marker for the schools.
-    // *Change this to iterate through an array of all
-    // six schools to put them all on the map.
-    marker = new google.maps.Marker({
-      position: new google.maps.LatLng(49.170385, -122.796939),
-      map: $scope.map,
-      label: 'A',
-      icon: '<%= image_url("blue_MarkerA.png") %>',
-      title: "Surrey High"
-    });
-    marker = new google.maps.Marker({
-      position: new google.maps.LatLng(49.112364, -122.738985),
-      map: $scope.map,
-      label: 'A',
-      icon: '<%= image_url("blue_MarkerA.png") %>',
-      title: "William of Orange"
-    });
-    marker = new google.maps.Marker({
-      position: new google.maps.LatLng(49.096882, -122.6161698),
-      map: $scope.map,
-      label: 'A',
-      icon: '<%= image_url("blue_MarkerA.png") %>',
-      title: "Credo Christian Elementary"
-    });
-    marker = new google.maps.Marker({
-      position: new google.maps.LatLng(49.095947, -122.617342),
-      map: $scope.map,
-      label: 'A',
-      icon: '<%= image_url("blue_MarkerA.png") %>',
-      title: "Credo Christian High"
-    });
-    marker = new google.maps.Marker({
-      position: new google.maps.LatLng(49.0885572, -122.5894669),
-      map: $scope.map,
-      label: 'A',
-      icon: '<%= image_url("blue_MarkerA.png") %>',
-      title: "Langley Christian Elementary"
-    });
-    marker = new google.maps.Marker({
-      position: new google.maps.LatLng(49.0885595, -122.5951462),
-      map: $scope.map,
-      label: 'A',
-      icon: '<%= image_url("blue_MarkerA.png") %>',
-      title: "Langley Christian Middle/High"
-    });
-    marker = new google.maps.Marker({
-      position: new google.maps.LatLng(49.164418, -122.773024),
-      map: $scope.map,
-      label: 'A',
-      icon: '<%= image_url("blue_MarkerA.png") %>',
-      title: "Surrey Christian Elementary"
-    });
-    marker = new google.maps.Marker({
-      position: new google.maps.LatLng(49.110539, -122.726684),
-      map: $scope.map,
-      label: 'A',
-      icon: '<%= image_url("blue_MarkerA.png") %>',
-      title: "Cloverdale Christian"
-    });
-    
-  }; // End of initialize function.
-  // Wait for the window to load and then run the initialize function.
-  google.maps.event.addDomListener(window, 'load', initialize);
-  
   function resetMarkers(results) {
+  console.log($scope.shared.map);
     deleteStudentMarkers();
     setMarkers(results);
   };
@@ -187,7 +178,7 @@ busRoutesApp.controller('MapCtrl', ["$scope", "$filter", "Student", function ($s
          siblings: [],
          windowContent: windowContent, 
          draggable: true,
-         map: $scope.map,
+         map: $scope.shared.map,
          title: student.first_name + " " + student.last_name
        });
        marker.addListener('click', function() {

@@ -19,7 +19,7 @@
       <button ng-cloak ng-show="formDisplay" ng-click="hideForm()">Finished Adding Students</button>
     </div>
   </div>
-  <div class="col-md-12" ng-controller="MapCtrl">
+  <div class="col-md-12" ng-controller="MainCtrl">
     <div class="col-md-12">
       <div class="search-box">
         Search:
@@ -229,7 +229,7 @@
     <button ng-click="clearSelected()">Clear Students</button>
     <button ng-click="bulkAssignRoute()">Assign Route To Selected Students</button>
     </div>
-    <div id="map-canvas">
-    </div>
+  </div>
+  <div id="map-canvas" ng-controller="MapCtrl">
   </div>
 </div>
