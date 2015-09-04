@@ -19,8 +19,7 @@
       <button ng-cloak ng-show="formDisplay" ng-click="hideForm()">Finished Adding Students</button>
     </div>
   </div>
-  <div class="col-md-12" ng-controller="MainCtrl">
-    <div class="col-md-12">
+  <div class="col-md-12" ng-controller="StudentIndexCtrl">
       <div class="search-box">
         Search:
         <input class="form-control" type="text" placeholder="Search" ng-model="Search">
@@ -123,10 +122,12 @@
           <td>{{student.friday}}</td>
           <td>{{student.return_trip}}</td>
           <td class="delete-button"><button ng-click="removeStudent(student.id)">Delete</button></td>
-          <td class="details-button"><button ng-click="showStudentDetails(student.id)">Details</button></td>
+          <td class="details-button" ng-controller="StudentShowCtrl"><button ng-click="showStudent(student.id)">Details</button></td>
           <td class="edit-button"><button ng-click="showStudentEdit(student.id)">Edit</button></td>
         </tr>
       </table>
+  </div>
+  <div ng-controller="MainCtrl">
       <form id="edit-student-form" ng-cloak ng-show="editDetails" ng-submit="updateEditStudent()" >
         <div class="form-group">
           <label>First Name:</label><input class="form-control" type="text" ng-model="editStudent.first_name">
@@ -176,7 +177,6 @@
         <li><span class="heading">Longitude:</span> {{detailStudent.longitude}}</li>
       </ul>
       <button ng-show="showDetails" ng-click="showDetails = false">Hide Student Details</button> 
-    </div>
     <select ng-model="selectedRoute" ng-hide="true"> 
       <option value="" disabled selected >Select Your Route</option>
       <option value="101" >101</option>

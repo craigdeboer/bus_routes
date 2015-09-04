@@ -5,7 +5,8 @@
 var busRoutesApp = angular.module('busRoutesApp', [
     "ngResource",
     "bus_routes.map",
-    "bus_routes.models.students"])
+    "bus_routes.models.students",
+    "bus_routes.students"])
 
   .service('Shared', function() {
     var shared = {};
@@ -28,6 +29,23 @@ angular.module('bus_routes.models.students',[])
       return students;
     }
   };
+  model.deleteStudent = function(studentId) {
+    var student = model.findStudent;
+    student.$remove();
+  }; 
+
+  model.findStudent = function(studentId) {
+    for(i = 0; i < students.length; i++) {
+      var currentStudent = students[i];
+      if (currentStudent.id === studentId) {
+        var student = currentStudent;
+        break;
+      }
+    }
+    return student;
+  };
+  
+
 }])
 ;
 
@@ -50,7 +68,57 @@ angular.module('bus_routes.models.schools', [])
     };
   })
 ;
+angular.module('bus_routes.students', [
+               'bus_routes.students.show'])
+  
+  .controller('StudentIndexCtrl', ["$scope", "Shared", "StudentsModel", function($scope, Shared, StudentsModel) {
+    $scope.students = StudentsModel.getStudents(); // Populate array of all students.
+    
+    // Define scoped functions.
+    $scope.deleteRouteFilter = deleteRouteFilter;
+    $scope.removeStudent = removeStudent;
+    $scope.showStudentEdit = showStudentEdit;
+    
+    // This function is called when the Route Filter is changed and deletes the value
+    // if All Routes are selected. If $scope.Route is not deleted, students with
+    // a Route attribute value of null will not be included in the filter results.
+    function deleteRouteFilter() {
+      if ($scope.Route === "") {
+        delete $scope.Route;
+      }
+    };
 
+    function removeStudent(studentId) {
+      StudentsModel.deleteStudent(studentId);
+      // *** Find a way to retrieve index from student id $scope.students.splice(index, 1);
+    };
+
+
+    function showStudentEdit(studentId) {
+      alert(studentId);
+    };
+
+  }])
+
+;
+    
+angular.module('bus_routes.students.show', [])
+
+  .controller('StudentShowCtrl', ["$scope", "Shared", "StudentsModel", function($scope, Shared, StudentsModel) {
+
+    // Define scoped functions.
+    $scope.showStudent = showStudent;
+
+    function showStudent(studentId) {
+      alert("In the show student controller and function");
+      var student = StudentsModel.findStudent(studentId);
+      $scope.detailStudent = student;
+      $scope.showDetails = true;
+    };
+      
+
+  }])
+;
 
 angular.module('bus_routes.map', [
   'bus_routes.models.schools'
@@ -153,7 +221,6 @@ busRoutesApp.controller('MainCtrl', ["$scope", "$filter", "StudentsModel", "Shar
   // Define scoped functions.
   $scope.resetMarkers = resetMarkers;
   $scope.addMarkers = addMarkers;
-  $scope.removeStudent = removeStudent;
   
   function resetMarkers(results) {
   console.log($scope.shared.map);
@@ -293,30 +360,6 @@ busRoutesApp.controller('MainCtrl', ["$scope", "$filter", "StudentsModel", "Shar
     });
   };
 
-  function removeStudent(student_id) {
-    for(i=0; i < $scope.students.length; i++) {
-      var compareStudent = $scope.students[i];
-      if (student_id === compareStudent.id) {
-        var student = compareStudent;
-        var index = i;
-        break;
-      }
-    }
-    student.$remove();
-    $scope.students.splice(index, 1);
-  };
-  $scope.showStudentDetails = function(student_id) {
-    for(i=0; i < $scope.students.length; i++) {
-      var compareStudent = $scope.students[i];
-      if (student_id === compareStudent.id) {
-        var student = compareStudent;
-        var index = i;
-        break;
-      }
-    }
-    $scope.detailStudent = student;
-    $scope.showDetails = true;
-  };
   $scope.showStudentEdit = function(student_id) {
     for(i=0; i < $scope.students.length; i++) {
       var compareStudent = $scope.students[i];
@@ -414,11 +457,6 @@ busRoutesApp.controller('MainCtrl', ["$scope", "$filter", "StudentsModel", "Shar
     var newWindow = window.open(); // open a new window
     newWindow.document.write(content.innerHTML); // write the map into the new window
     newWindow.print(); // print the new window
-  };
-  $scope.deleteRouteFilter = function() {
-    if ($scope.Route === "") {
-      delete $scope.Route;
-    }
   };
   $scope.clearSelected = function() {
     $scope.selections = [];
