@@ -4,7 +4,8 @@
 // name you choose for your module here.
 var busRoutesApp = angular.module('busRoutesApp', [
     "ngResource",
-    "bus_routes.map"])
+    "bus_routes.map",
+    "bus_routes.models.students"])
 
   .service('Shared', function() {
     var shared = {};
@@ -12,7 +13,25 @@ var busRoutesApp = angular.module('busRoutesApp', [
     return shared;
   })
 ;
-angular.module('bus_routes.schools_model', [])
+angular.module('bus_routes.models.students',[])
+
+.service('StudentsModel', ["Student", function(Student) {
+  var model = this;
+  var students = [];
+  model.getStudents = function() {
+    if (students.length !== 0) {
+      console.log(students.length);
+      return students;    
+    } else {
+      console.log("lenth is 0, fetching from database");
+      students = Student.query();
+      return students;
+    }
+  };
+}])
+;
+
+angular.module('bus_routes.models.schools', [])
 
   .service('SchoolsModel', function() {
     var model = this;
@@ -34,7 +53,7 @@ angular.module('bus_routes.schools_model', [])
 
 
 angular.module('bus_routes.map', [
-  'bus_routes.schools_model'
+  'bus_routes.models.schools'
 ])
 
   .controller('MapCtrl', ["$scope", "Shared", "SchoolsModel", function($scope, Shared, SchoolsModel) {
@@ -80,11 +99,11 @@ busRoutesApp.factory('Student', ["$resource", function($resource) {
 // dependencies.
 // The name is referenced in the view to assign control of that element
 // and its children to this specific controller.
-busRoutesApp.controller('StudentsListCtrl', ["$scope", "Student", function ($scope, Student) {
+busRoutesApp.controller('StudentsListCtrl', ["$scope", "StudentsModel", function ($scope, StudentsModel) {
   
   // Define scoped variables and collections.  
   $scope.formDisplay = false;
-  $scope.students = Student.query(); 
+  $scope.students = StudentsModel.getStudents(); 
   
   // Define scoped functions.
   $scope.addNewStudent = addNewStudent;
@@ -105,7 +124,7 @@ busRoutesApp.controller('StudentsListCtrl', ["$scope", "Student", function ($sco
   };
 }]);
 
-busRoutesApp.controller('MainCtrl', ["$scope", "$filter", "Student", "Shared", function ($scope, $filter, Student, Shared) {
+busRoutesApp.controller('MainCtrl', ["$scope", "$filter", "StudentsModel", "Shared", function ($scope, $filter, StudentsModel, Shared) {
 // If I just perform the Student.query() and then execute 
 // the setMarkers function, it fails because I'm trying to access
 // the $scope.students before the query is completed.
@@ -113,9 +132,7 @@ busRoutesApp.controller('MainCtrl', ["$scope", "$filter", "Student", "Shared", f
 // setMarkers function within that callback function, I ensure the
 // query is complete before I try to access the data.  
   // Define scoped variables and collections.
-  var students = Student.query(function() {
-    $scope.students = students;
-  });
+  $scope.students = StudentsModel.getStudents(); 
   $scope.shared = Shared;
   $scope.seatsAssigned = 0;
   $scope.showDetails = false;
