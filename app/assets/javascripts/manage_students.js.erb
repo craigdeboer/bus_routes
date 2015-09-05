@@ -6,7 +6,9 @@ var busRoutesApp = angular.module('busRoutesApp', [
     "ngResource",
     "bus_routes.map",
     "bus_routes.models.students",
-    "bus_routes.students"])
+    "bus_routes.students",
+    "bus_routes.markers"
+    ])
 
   .service('Shared', function() {
     var shared = {};
@@ -16,38 +18,59 @@ var busRoutesApp = angular.module('busRoutesApp', [
 ;
 angular.module('bus_routes.models.students',[])
 
-.service('StudentsModel', ["Student", function(Student) {
-  var model = this;
-  var students = [];
-  model.getStudents = function() {
-    if (students.length !== 0) {
-      console.log(students.length);
-      return students;    
-    } else {
-      console.log("lenth is 0, fetching from database");
-      students = Student.query();
-      return students;
-    }
-  };
-  model.deleteStudent = function(studentId) {
-    var student = model.findStudent;
-    student.$remove();
-  }; 
-
-  model.findStudent = function(studentId) {
-    for(i = 0; i < students.length; i++) {
-      var currentStudent = students[i];
-      if (currentStudent.id === studentId) {
-        var student = currentStudent;
-        break;
+  .service('StudentsModel', ["Student", function(Student) {
+    var model = this;
+    var students = [];
+    var index = null;
+    model.getStudents = function() {
+      if (students.length !== 0) {
+        console.log(students.length);
+        return students;    
+      } else {
+        console.log("lenth is 0, fetching from database");
+        students = Student.query();
+        return students;
       }
-    }
-    return student;
-  };
-  
-
-}])
+    };
+    model.deleteStudent = function(studentId) {
+      var student = model.findStudent(studentId);
+      student.$remove();
+      students.splice(index, 1);
+      return index;
+    }; 
+    model.updateStudent = function(student) {
+      student.$update();
+    };
+    model.findStudent = function(studentId) {
+      for(i = 0; i < students.length; i++) {
+        var currentStudent = students[i];
+        if (currentStudent.id === studentId) {
+          console.log(studentId);
+          var student = currentStudent;
+          index = i;
+          break;
+        }
+      }
+      return student;
+    };
+  }])
 ;
+
+angular.module('bus_routes.markers', [])
+
+  .service('StudentMarkers', function() {
+    var model = this;
+    var studentMarkers = {};
+
+    model.findMarker = function(studentId) {
+      return studentMarkers[studentId];
+    };
+
+  })
+
+;
+
+
 
 angular.module('bus_routes.models.schools', [])
 
@@ -69,15 +92,17 @@ angular.module('bus_routes.models.schools', [])
   })
 ;
 angular.module('bus_routes.students', [
-               'bus_routes.students.show'])
+               ])
   
-  .controller('StudentIndexCtrl', ["$scope", "Shared", "StudentsModel", function($scope, Shared, StudentsModel) {
+  .controller('StudentCrudCtrl', ["$scope", "Shared", "StudentsModel", "StudentMarkers", function($scope, Shared, StudentsModel, StudentMarkers) {
     $scope.students = StudentsModel.getStudents(); // Populate array of all students.
+    $scope.shared = Shared;
     
     // Define scoped functions.
     $scope.deleteRouteFilter = deleteRouteFilter;
     $scope.removeStudent = removeStudent;
-    $scope.showStudentEdit = showStudentEdit;
+    $scope.editStudent = editStudent;
+    $scope.updateStudent = updateStudent;
     
     // This function is called when the Route Filter is changed and deletes the value
     // if All Routes are selected. If $scope.Route is not deleted, students with
@@ -89,37 +114,75 @@ angular.module('bus_routes.students', [
     };
 
     function removeStudent(studentId) {
-      StudentsModel.deleteStudent(studentId);
-      // *** Find a way to retrieve index from student id $scope.students.splice(index, 1);
+      var index = StudentsModel.deleteStudent(studentId);
+      $scope.students.splice(index, 1);
     };
 
+    function editStudent(studentId) {
+      $scope.selectedStudent = findScopedStudent(studentId);
+      
+      // Set extra attributes to be used in the updateStudent function 
+      // to determine if they were edited or not.
+      var student = $scope.selectedStudent;
+      student.original_address = student.street_address;
+      student.original_city = student.city;
+      student.original_postal_code = student.postal_code;
+      
+      $scope.showEdit = true; // Show the edit form.
+    };
 
-    function showStudentEdit(studentId) {
-      alert(studentId);
+    function updateStudent() {
+      var student = $scope.selectedStudent;
+      StudentsModel.updateStudent(student);
+      if (anyChanges(student)) {
+        var address = composeAddress(student);
+        var geocoder = new google.maps.Geocoder();
+        geocoder.geocode( {'address':address}, function(results, status) {
+          if (status === google.maps.GeocoderStatus.OK) {
+            var marker = StudentMarkers.findMarker(student.id);
+            if (marker) {
+              marker.windowContent += "Address Changed To: " + student.street_address;
+              marker.position = results[0].geometry.location;
+              marker.setMap(null);
+              marker.setMap($scope.shared.map);
+            }
+            student.updatedLocation = results[0].geometry.location;
+          } else {
+            alert("Student marker update wasn't successful for the following reason: " + status);
+          }
+        });
+      }
+      $scope.showEdit = false;
+    };
+    
+    function anyChanges(student) {
+      var addressChanged = student.original_address !== student.street_address;
+      var cityChanged = student.original_city !== student.city;
+      var postalCodeChanged = student.original_postal_code !== student.postal_code;
+      return addressChanged || cityChanged || postalCodeChanged; 
+    };
+    function composeAddress(student) {
+      if (student.postal_code === null) {
+        student.postal_code = " ";
+      }
+      var address = student.street_address + "," + student.city + "," + "BC" + " " + student.postal_code;
+      return address;
+    };
+    function findScopedStudent(studentId) {
+      for(i = 0; i < $scope.students.length; i++) {
+        var currentStudent = $scope.students[i];
+        if (currentStudent.id === studentId) {
+          var student = currentStudent;
+          break;
+        }
+      }
+      return student;
     };
 
   }])
 
 ;
     
-angular.module('bus_routes.students.show', [])
-
-  .controller('StudentShowCtrl', ["$scope", "Shared", "StudentsModel", function($scope, Shared, StudentsModel) {
-
-    // Define scoped functions.
-    $scope.showStudent = showStudent;
-
-    function showStudent(studentId) {
-      alert("In the show student controller and function");
-      var student = StudentsModel.findStudent(studentId);
-      $scope.detailStudent = student;
-      $scope.showDetails = true;
-    };
-      
-
-  }])
-;
-
 angular.module('bus_routes.map', [
   'bus_routes.models.schools'
 ])
@@ -375,36 +438,6 @@ busRoutesApp.controller('MainCtrl', ["$scope", "$filter", "StudentsModel", "Shar
     $scope.editStudent.original_postal_code = student.postal_code;
     $scope.editDetails = true;
   };
-  $scope.updateEditStudent = function() {
-    var student = $scope.editStudent;
-    var addressChanged = $scope.editStudent.original_address !== student.street_address;
-    var cityChanged = $scope.editStudent.original_city !== student.city;
-    var postalCodeChanged = $scope.editStudent.original_postal_code !== student.postal_code;
-    student.$update();
-    if (addressChanged || cityChanged || postalCodeChanged) {
-      if (student.postal_code === null) {
-        student.postal_code = " ";
-      }
-      var address = student.street_address + "," + student.city + "," + "BC" + " " + student.postal_code;
-      var geocoder = new google.maps.Geocoder();
-      geocoder.geocode( {'address':address}, function(results, status) {
-        if (status === google.maps.GeocoderStatus.OK) {
-          if (studentMarkers[student.id]) {
-            var marker = studentMarkers[student.id];  
-            marker.windowContent += "Address Changed To: " + student.street_address;
-            marker.position = results[0].geometry.location;
-            marker.setMap(null);
-            marker.setMap($scope.map);
-          }
-          student.updatedLocation = results[0].geometry.location;
-        } else {
-          alert("Student marker update wasn't successful for the following reason: " + status);
-        }
-      });
-    }
-    $scope.editDetails = false;
-  };
-  
 
 
   function markerLatitude(marker) {
