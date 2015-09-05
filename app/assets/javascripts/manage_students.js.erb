@@ -30,6 +30,11 @@ angular.module('bus_routes.models.students',[])
         return students;
       }
     };
+    model.addStudent = function(student) {
+      Student.save(student);
+      students.push(student);
+    };
+
     model.deleteStudent = function(studentId) {
       var student = model.findStudent(studentId);
       student.$remove();
@@ -101,12 +106,18 @@ angular.module('bus_routes.students', [
     };
     loadStudents();
     $scope.shared = Shared;
+    $scope.formDisplay = false;
+    $scope.showDetails = false;
     
     // Define scoped functions.
     $scope.deleteRouteFilter = deleteRouteFilter;
     $scope.removeStudent = removeStudent;
     $scope.editStudent = editStudent;
     $scope.updateStudent = updateStudent;
+    $scope.addNewStudent = addNewStudent;
+    $scope.showStudent = showStudent;
+    $scope.showForm = showForm;
+    $scope.hideForm = hideForm;
     
     // This function is called when the Route Filter is changed and deletes the value
     // if All Routes are selected. If $scope.Route is not deleted, students with
@@ -115,6 +126,25 @@ angular.module('bus_routes.students', [
       if ($scope.Route === "") {
         delete $scope.Route;
       }
+    };
+
+    function showStudent(studentId) {
+      $scope.detailStudent = StudentsModel.findStudent(studentId);
+      $scope.showDetails = true;
+    };
+
+
+    //  Define controller functions. 
+    function addNewStudent() {
+      StudentsModel.addStudent($scope.NewStudent);
+      loadStudents();
+      $scope.NewStudent = {};
+    };
+    function showForm() {
+      $scope.formDisplay = true;
+    };
+    function hideForm() {
+      $scope.formDisplay = false;
     };
 
     function removeStudent(studentId) {
@@ -221,38 +251,6 @@ busRoutesApp.factory('Student', ["$resource", function($resource) {
   return $resource("/api/students/:id", {id: "@id"}, {update: {method: "PUT"}});
 }]);
 
-// This section defines a controller that belongs to the busRoutesApp
-// module. It takes two arguments: a name and either 
-// an array of dependencies with the last element being the function or
-// it can just take a function. Because of the way Rails minifies JS
-// files in production, we need to use the array method of specifying
-// dependencies.
-// The name is referenced in the view to assign control of that element
-// and its children to this specific controller.
-busRoutesApp.controller('StudentsListCtrl', ["$scope", "StudentsModel", function ($scope, StudentsModel) {
-  
-  // Define scoped variables and collections.  
-  $scope.formDisplay = false;
-  $scope.students = StudentsModel.getStudents(); 
-  
-  // Define scoped functions.
-  $scope.addNewStudent = addNewStudent;
-  $scope.showForm = showForm;
-  $scope.hideForm = hideForm;
-  
-  //  Define controller functions. 
-  function addNewStudent() {
-    student = Student.save($scope.NewStudent);
-    $scope.students.push(student);
-    $scope.NewStudent = {};
-  };
-  function showForm() {
-    $scope.formDisplay = true;
-  };
-  function hideForm() {
-    $scope.formDisplay = false;
-  };
-}]);
 
 busRoutesApp.controller('MainCtrl', ["$scope", "$filter", "StudentsModel", "Shared", function ($scope, $filter, StudentsModel, Shared) {
 // If I just perform the Student.query() and then execute 
@@ -266,7 +264,6 @@ busRoutesApp.controller('MainCtrl', ["$scope", "$filter", "StudentsModel", "Shar
   $scope.shared = Shared;
   $scope.seatsAssigned = 0;
   $scope.showDetails = false;
-  $scope.editDetails = false;
   $scope.beginSelection = false;
   $scope.bulkAssignmentRoute = "";
   $scope.selections = [];
@@ -422,21 +419,6 @@ busRoutesApp.controller('MainCtrl', ["$scope", "$filter", "StudentsModel", "Shar
     });
   };
 
-  $scope.showStudentEdit = function(student_id) {
-    for(i=0; i < $scope.students.length; i++) {
-      var compareStudent = $scope.students[i];
-      if (student_id === compareStudent.id) {
-        var student = compareStudent;
-        var index = i;
-        break;
-      }
-    }
-    $scope.editStudent = student;
-    $scope.editStudent.original_address = student.street_address;
-    $scope.editStudent.original_city = student.city;
-    $scope.editStudent.original_postal_code = student.postal_code;
-    $scope.editDetails = true;
-  };
 
 
   function markerLatitude(marker) {

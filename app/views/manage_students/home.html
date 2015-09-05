@@ -1,24 +1,4 @@
 <div class="container-fluid" ng-app="busRoutesApp">
-  <div class="panel panel-success" ng-controller="StudentsListCtrl">
-    <div class="panel-body col-md-4">
-      <button ng-hide="formDisplay" ng-click="showForm()">Add A New Student</button>
-      <form ng-cloak ng-show="formDisplay" ng-submit="addNewStudent()">
-        <div class="form-group">
-          <input class="form-control" type="text" placeholder="First Name" ng-model="NewStudent.first_name">
-          <input class="form-control" type="text" placeholder="Last Name" ng-model="NewStudent.last_name">
-          <input class="form-control" type="text" placeholder="School" ng-model="NewStudent.school">
-          <input class="form-control" type="text" placeholder="Grade" ng-model="NewStudent.grade">
-          <input class="form-control" type="text" placeholder="Phone Number" ng-model="NewStudent.phone">
-          <input class="form-control" type="text" placeholder="Email Address" ng-model="NewStudent.email">
-          <input class="form-control" type="text" placeholder="Street Address" ng-model="NewStudent.street_address">
-          <input class="form-control" type="text" placeholder="City" ng-model="NewStudent.city">
-          <input class="form-control" type="text" placeholder="Postal Code" ng-model="NewStudent.postal_code">
-          <input type="submit" value="Add New Student">
-        </div>
-      </form>
-      <button ng-cloak ng-show="formDisplay" ng-click="hideForm()">Finished Adding Students</button>
-    </div>
-  </div>
   <div class="col-md-12" ng-controller="StudentCrudCtrl">
       <div class="search-box">
         Search:
@@ -126,6 +106,22 @@
           <td class="edit-button" ><button ng-click="editStudent(student.id)">Edit</button></td>
         </tr>
       </table>
+    <button ng-hide="formDisplay" ng-click="showForm()">Add A New Student</button>
+    <form ng-cloak ng-show="formDisplay" ng-submit="addNewStudent()">
+      <div class="form-group">
+        <input class="form-control" type="text" placeholder="First Name" ng-model="NewStudent.first_name">
+        <input class="form-control" type="text" placeholder="Last Name" ng-model="NewStudent.last_name">
+        <input class="form-control" type="text" placeholder="School" ng-model="NewStudent.school">
+        <input class="form-control" type="text" placeholder="Grade" ng-model="NewStudent.grade">
+        <input class="form-control" type="text" placeholder="Phone Number" ng-model="NewStudent.phone">
+        <input class="form-control" type="text" placeholder="Email Address" ng-model="NewStudent.email">
+        <input class="form-control" type="text" placeholder="Street Address" ng-model="NewStudent.street_address">
+        <input class="form-control" type="text" placeholder="City" ng-model="NewStudent.city">
+        <input class="form-control" type="text" placeholder="Postal Code" ng-model="NewStudent.postal_code">
+        <input type="submit" value="Add New Student">
+      </div>
+    </form>
+    <button ng-cloak ng-show="formDisplay" ng-click="hideForm()">Finished Adding Students</button>
       <form id="edit-student-form"  ng-cloak ng-show="showEdit" ng-submit="updateStudent()" >
         <h1>Edit Student</h1>
         <div class="form-group">
