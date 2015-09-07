@@ -106,6 +106,10 @@
           <td class="edit-button" ><button ng-click="editStudent(student.id)">Edit</button></td>
         </tr>
       </table>
+    <div>
+      <button ng-click="seatsFilled(shared.results)">Number of Seats Assigned For This Group</button>
+      <p>{{seatsAssigned}}</p>
+    </div>
     <button ng-hide="formDisplay" ng-click="showForm()">Add A New Student</button>
     <form ng-cloak ng-show="formDisplay" ng-submit="addNewStudent()">
       <div class="form-group">
@@ -177,21 +181,19 @@
     <button ng-click="resetMarkers(shared.results)">Show Only Students In List On Map</button> 
     <button ng-click="addMarkers(shared.results)">Add Students In List To Map</button> 
   </div>
-  <div ng-controller="MainCtrl">
-    <div>
-      <button ng-click="seatsFilled(shared.results)">Number of Seats Assigned For This Group</button>
-      <p>{{seatsAssigned}}</p>
-    </div>
+  <div ng-controller="RouteAssignmentCtrl">
     <div class="edit-student">
       <p>{{shared.clickedStudent.first_name}}</p>
-      <p>{{clickedStudent.last_name}}</p>
-      <p>{{clickedStudent.school}}</p>
-      <input class="form-control" type="text" placeholder="Route" ng-model="clickedStudent.bus_route">
-      <input class="form-control" type="text" placeholder="Stop" ng-model="clickedStudent.stop">
-      <input class="form-control" type="text" placeholder="Mon-Thurs Time" ng-model="clickedStudent.mon_thurs">
-      <input class="form-control" type="text" placeholder="Friday Time" ng-model="clickedStudent.friday">
-      <button ng-click="updateStudent()">Update Student</button>
+      <p>{{shared.clickedStudent.last_name}}</p>
+      <p>{{shared.clickedStudent.school}}</p>
+      <input class="form-control" type="text" placeholder="Route" ng-model="shared.clickedStudent.bus_route">
+      <input class="form-control" type="text" placeholder="Stop" ng-model="shared.clickedStudent.stop">
+      <input class="form-control" type="text" placeholder="Mon-Thurs Time" ng-model="shared.clickedStudent.mon_thurs">
+      <input class="form-control" type="text" placeholder="Friday Time" ng-model="shared.clickedStudent.friday">
+      <button ng-click="updateStudentRouteInfo()">Update Student</button>
     </div>
+  </div>
+  <div ng-controller="MainCtrl">
     <p ng-show="beginSelection">You are in Bulk Route Assignment mode.
     <button ng-click="beginSelection = false">Click here to exit this mode</button>
     </p>

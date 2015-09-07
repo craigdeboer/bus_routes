@@ -7,7 +7,8 @@ var busRoutesApp = angular.module('busRoutesApp', [
     "bus_routes.map",
     "bus_routes.models.students",
     "bus_routes.students",
-    "bus_routes.markers"
+    "bus_routes.markers",
+    "bus_routes.route_assignment"
     ])
 
   .service('Shared', function() {
@@ -45,7 +46,7 @@ angular.module('bus_routes.models.students',[])
       return index;
     }; 
     model.updateStudent = function(student) {
-      console.log(student);
+      console.log(student.first_name + student.bus_route);
       student.$update();
       var updatedStudent = model.findStudent(student.id);
       students.splice(index, 1, updatedStudent);
@@ -108,6 +109,7 @@ angular.module('bus_routes.students', [
     $scope.showStudent = showStudent;
     $scope.showForm = showForm;
     $scope.hideForm = hideForm;
+    $scope.seatsFilled = seatsFilled;
     
     // This function is called when the Route Filter is changed and deletes the value
     // if All Routes are selected. If $scope.Route is not deleted, students with
@@ -198,6 +200,27 @@ angular.module('bus_routes.students', [
       return address;
     };
 
+     function seatsFilled(results) {
+      var seatCount = 0;
+      angular.forEach(results, function(student) {
+        switch(student.grade) {
+          case 0:
+          case 1:
+          case 2:
+          case 3:
+          case 4:
+          case 5:
+          case 6:
+          case 7:
+            seatCount += 1;
+            break;
+          default:
+            seatCount += 1.5;
+        }
+      });
+      $scope.seatsAssigned = seatCount;
+    };
+
   }])
 
 ;
@@ -250,6 +273,55 @@ busRoutesApp.factory('Student', ["$resource", function($resource) {
   return $resource("/api/students/:id", {id: "@id"}, {update: {method: "PUT"}});
 }]);
 
+angular.module('bus_routes.route_assignment', [])
+
+  .controller('RouteAssignmentCtrl', ['$scope', 'Shared', 'StudentsModel', 'StudentMarkers', function($scope, Shared, StudentsModel, StudentMarkers) {
+
+    $scope.shared = Shared;
+
+    // Define scoped functions.
+    $scope.updateStudentRouteInfo = updateStudentRouteInfo;
+
+
+    function updateStudentRouteInfo() {
+      var student = $scope.shared.clickedStudent;
+      var route = parseInt(student.bus_route);
+      var stop = student.stop;
+      var mon_thurs = student.mon_thurs;
+      var friday = student.friday;
+      student.bus_route = route;
+      StudentsModel.updateStudent(student);
+      var marker = StudentMarkers.getMarker(student.id);
+      changeSiblingsRoute(marker, route, stop, mon_thurs, friday);
+      changeMarkerColor(student.id, route);
+      $scope.shared.students = StudentsModel.getStudents();
+    };
+
+    function changeMarkerColor(studentId, route) {
+      var icon = StudentMarkers.setMarkerColor(route);
+      var marker = StudentMarkers.getMarker(studentId);
+      marker.icon = icon;
+      marker.setMap(null);
+      marker.setMap($scope.shared.map);
+    };
+
+    function changeSiblingsRoute(marker, route, stop, mon_thurs, friday) {
+      if (marker.siblings.length !== 0) {
+        angular.forEach(marker.siblings, function(siblingId) {
+          var sibling = StudentsModel.findStudent(siblingId);
+          sibling.bus_route = route;
+          sibling.stop = stop;
+          sibling.mon_thurs = mon_thurs;
+          sibling.friday = friday;
+          StudentsModel.updateStudent(sibling); 
+        });
+      }
+    };
+
+  }])
+
+;
+
 angular.module('bus_routes.markers', [])
 
   .service('StudentMarkers', function() {
@@ -291,6 +363,62 @@ angular.module('bus_routes.markers', [])
       }
       return matching;
     };
+    
+    model.setMarkerColor = function(bus_route) {
+      switch (bus_route) {
+        case 101: 
+          icon = '<%= image_url("brightBlue.png") %>';
+          break;
+        case 102: 
+          icon = '<%= image_url("brightGreen.png") %>';
+          break;
+        case 103: 
+          icon = '<%= image_url("camoGreen.png") %>';
+          break;
+        case 104: 
+          icon = '<%= image_url("cream.png") %>';
+          break;
+        case 105: 
+          icon = '<%= image_url("grey.png") %>';
+          break;
+        case 106: 
+          icon = '<%= image_url("lightBlue.png") %>';
+          break;
+        case 107: 
+          icon = '<%= image_url("lightOrange.png") %>';
+          break;
+        case 108: 
+          icon = '<%= image_url("medGreen.png") %>';
+          break;
+        case 201: 
+          icon = '<%= image_url("offWhite.png") %>';
+          break;
+        case 202: 
+          icon = '<%= image_url("orange.png") %>';
+          break;
+        case 203: 
+          icon = '<%= image_url("paleYellow.png") %>';
+          break;
+        case 204: 
+          icon = '<%= image_url("pink.png") %>';
+          break;
+        case 205: 
+          icon = '<%= image_url("purple.png") %>';
+          break;
+        case 206: 
+          icon = '<%= image_url("tan.png") %>';
+          break;
+        case 207: 
+          icon = '<%= image_url("teal.png") %>';
+          break;
+        case 208: 
+          icon = '<%= image_url("yellow.png") %>';
+          break;
+        default:
+          icon = '<%= image_url("red.png") %>';
+      }
+      return icon;
+    };
 
   })
   .controller('MarkerCtrl', ['StudentsModel', 'StudentMarkers', 'Shared', '$scope', function (StudentsModel, StudentMarkers, Shared, $scope) {
@@ -325,7 +453,7 @@ angular.module('bus_routes.markers', [])
     function createNewStudentMarker(student) {
       var id = student.id;
       var windowContent = student.last_name.toUpperCase() +  "<br>" + student.street_address + "<br>" + student.first_name + " " + student.school + " " + student.grade + "<br>";
-      var icon = setMarkerColor(student.bus_route); 
+      var icon = StudentMarkers.setMarkerColor(student.bus_route); 
       var studentLatLng;
       // If students address, city, or postal code has been changed since last load from the 
       // database, they will have n updatedLocation attribute. Use this instead of the 
@@ -389,66 +517,13 @@ angular.module('bus_routes.markers', [])
        }
       });
     };   
-    function setMarkerColor(bus_route) {
-      switch (bus_route) {
-        case 101: 
-          icon = '<%= image_url("brightBlue.png") %>';
-          break;
-        case 102: 
-          icon = '<%= image_url("brightGreen.png") %>';
-          break;
-        case 103: 
-          icon = '<%= image_url("camoGreen.png") %>';
-          break;
-        case 104: 
-          icon = '<%= image_url("cream.png") %>';
-          break;
-        case 105: 
-          icon = '<%= image_url("grey.png") %>';
-          break;
-        case 106: 
-          icon = '<%= image_url("lightBlue.png") %>';
-          break;
-        case 107: 
-          icon = '<%= image_url("lightOrange.png") %>';
-          break;
-        case 108: 
-          icon = '<%= image_url("medGreen.png") %>';
-          break;
-        case 201: 
-          icon = '<%= image_url("offWhite.png") %>';
-          break;
-        case 202: 
-          icon = '<%= image_url("orange.png") %>';
-          break;
-        case 203: 
-          icon = '<%= image_url("paleYellow.png") %>';
-          break;
-        case 204: 
-          icon = '<%= image_url("pink.png") %>';
-          break;
-        case 205: 
-          icon = '<%= image_url("purple.png") %>';
-          break;
-        case 206: 
-          icon = '<%= image_url("tan.png") %>';
-          break;
-        case 207: 
-          icon = '<%= image_url("teal.png") %>';
-          break;
-        case 208: 
-          icon = '<%= image_url("yellow.png") %>';
-          break;
-        default:
-          icon = '<%= image_url("red.png") %>';
-      }
-      return icon;
-    };
 
 
   }])
 
 ;
+
+
 
 busRoutesApp.controller('MainCtrl', ["$scope", "$filter", "StudentsModel", "Shared", function ($scope, $filter, StudentsModel, Shared) {
 // If I just perform the Student.query() and then execute 
@@ -458,19 +533,14 @@ busRoutesApp.controller('MainCtrl', ["$scope", "$filter", "StudentsModel", "Shar
 // setMarkers function within that callback function, I ensure the
 // query is complete before I try to access the data.  
   // Define scoped variables and collections.
-  $scope.seatsAssigned = 0;
   $scope.shared = Shared;
   $scope.beginSelection = false;
   $scope.bulkAssignmentRoute = "";
   $scope.selections = [];
-  $scope.firstOrderSelection = "last_name";
   $scope.clickedStudent = {"first_name":"Choose student by clicking on their marker"};
   $scope.editStudent = {};
 
-  var studentMarkers = {};
-  var existingStudentMarkers = [];
 
-  // Define scoped functions.
   
 
 
@@ -486,38 +556,6 @@ busRoutesApp.controller('MainCtrl', ["$scope", "$filter", "StudentsModel", "Shar
     angular.forEach(markers, function(marker) {
       marker.setMap(null);
     });
-  };
-  $scope.updateStudent = function() {
-    for(i=0; i < $scope.students.length; i++) {
-      var student = $scope.students[i];
-      if ($scope.clickedStudent.id === student.id) {
-        student.bus_route = parseInt($scope.clickedStudent.bus_route);
-        break;
-      }
-    }
-    student.$update();
-    marker = studentMarkers[$scope.clickedStudent.id];
-    if (marker.siblings.length !== 0) {
-      for (i=0; i < marker.siblings.length; i++) {
-        var siblingId = marker.siblings[i];
-        for (c = 0; c < $scope.students.length; c++) {
-          var siblingStudent = $scope.students[c];
-          if (siblingStudent.id === siblingId) {
-            siblingStudent.bus_route = student.bus_route;
-            siblingStudent.stop = student.stop;
-            siblingStudent.mon_thurs = student.mon_thurs;
-            siblingStudent.friday = student.friday;
-            siblingStudent.$update();
-            break;
-          }
-        }
-      }
-    }
-    icon = setMarkerColor($scope.clickedStudent.bus_route);
-    marker.icon = icon;
-    marker.setMap(null);
-    marker.setMap($scope.map);
-    $scope.clickedStudent = {};
   };
   $scope.clearSelected = function() {
     $scope.selections = [];
@@ -541,24 +579,4 @@ busRoutesApp.controller('MainCtrl', ["$scope", "$filter", "StudentsModel", "Shar
   };
     
 
-  $scope.seatsFilled = function(results) {
-    var seatCount = 0;
-    angular.forEach(results, function(student) {
-      switch(student.grade) {
-        case 0:
-        case 1:
-        case 2:
-        case 3:
-        case 4:
-        case 5:
-        case 6:
-        case 7:
-          seatCount += 1;
-          break;
-        default:
-          seatCount += 1.5;
-      }
-    });
-    $scope.seatsAssigned = seatCount;
-  };
 }]);
