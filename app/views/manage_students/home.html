@@ -66,7 +66,7 @@
       <p class="filter-results">
 <!-- The results variable is populated by the ng-repeat directive below -->
         <ng-pluralize 
-            count="results.length"
+            count="shared.results.length"
             when="{'0': 'No students match the selected filter criteria',
                    '1': '1 student matches the selected filter criteria',
                    'other': '{} students match the selected filter criteria'}">
@@ -89,7 +89,7 @@
           <th class="table-button"></th>
         </tr>
 <!-- The 'as results' allows the result of the filter to be stored in a variable called results so the information can be used elsewhere. In this case it is used to display the number of students that meet the user's filter criteria. -->
-<tr ng-repeat="student in students | filter:Search | filter:{bus_route:Route} | filter:{school:School} |filter:City | orderBy:[firstOrderSelection, secondOrderSelection] as results">
+<tr ng-repeat="student in (shared.results = (students | filter:Search | filter:{bus_route:Route} | filter:{school:School} |filter:City | orderBy:[firstOrderSelection, secondOrderSelection]))">
           <td>{{student.first_name}}</td>
           <td>{{student.last_name}}</td>
           <td>{{student.school}}</td>
@@ -173,36 +173,17 @@
       </ul>
       <button ng-show="showDetails" ng-click="showDetails = false">Hide Student Details</button> 
   </div>
+  <div ng-controller="MarkerCtrl">
+    <button ng-click="resetMarkers(shared.results)">Show Only Students In List On Map</button> 
+    <button ng-click="addMarkers(shared.results)">Add Students In List To Map</button> 
+  </div>
   <div ng-controller="MainCtrl">
-    <select ng-model="selectedRoute" ng-hide="true"> 
-      <option value="" disabled selected >Select Your Route</option>
-      <option value="101" >101</option>
-      <option value="102" >102</option>
-      <option value="103" >103</option>
-      <option value="104" >104</option>
-      <option value="105" >105</option>
-      <option value="106" >106</option>
-      <option value="107" >107</option>
-      <option value="108" >108</option>
-      <option value="201" >201</option>
-      <option value="202" >202</option>
-      <option value="203" >203</option>
-      <option value="204" >204</option>
-      <option value="205" >205</option>
-      <option value="206" >206</option>
-      <option value="207" >207</option>
-      <option value="208" >208</option>
-    </select>
-    <button ng-hide="true" ng-click="firstStep()">Show this route</button> 
-    <button ng-click="printMap()">Print Map</button> 
-    <button ng-click="resetMarkers(results)">Show Only Students In List On Map</button> 
-    <button ng-click="addMarkers(results)">Add Students In List To Map</button> 
     <div>
-      <button ng-click="seatsFilled(results)">Number of Seats Assigned For This Group</button>
+      <button ng-click="seatsFilled(shared.results)">Number of Seats Assigned For This Group</button>
       <p>{{seatsAssigned}}</p>
     </div>
     <div class="edit-student">
-      <p>{{clickedStudent.first_name}}</p>
+      <p>{{shared.clickedStudent.first_name}}</p>
       <p>{{clickedStudent.last_name}}</p>
       <p>{{clickedStudent.school}}</p>
       <input class="form-control" type="text" placeholder="Route" ng-model="clickedStudent.bus_route">
@@ -227,6 +208,9 @@
     <button ng-click="bulkAssignRoute()">Assign Route To Selected Students</button>
     </div>
   </div>
-  <div id="map-canvas" ng-controller="MapCtrl">
+  <div id="map-display" ng-controller="MapCtrl">
+    <button ng-click="printMap()">Print Map</button> 
+    <div id="map-canvas">
+    </div>
   </div>
 </div>
