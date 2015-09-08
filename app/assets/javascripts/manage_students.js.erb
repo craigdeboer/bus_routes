@@ -2,8 +2,273 @@
 // The module takes two arguments: the name of the module and 
 // an array of dependencies. The ng-app directive must reference the 
 // name you choose for your module here.
-var busRoutesApp = angular.module('busRoutesApp', ["ngResource"]);
+var busRoutesApp = angular.module('busRoutesApp', [
+    "ngResource",
+    "bus_routes.map",
+    "bus_routes.models.students",
+    "bus_routes.students",
+    "bus_routes.markers",
+    "bus_routes.route_assignment"
+    ])
 
+  .service('Shared', function() {
+    var shared = {};
+    shared.map = {};
+    shared.selections = [];
+    shared.beginSelection = false;
+    shared.results = [];
+    shared.clickedStudent = {};
+    return shared;
+  })
+;
+angular.module('bus_routes.models.students',[])
+
+  .service('StudentsModel', ["Student", function(Student) {
+    var model = this;
+    var students = [];
+    var index = null;
+    model.getStudents = function() {
+      if (students.length !== 0) {
+        return students;    
+      } else {
+        students = Student.query();
+        return students;
+      }
+    };
+    model.addStudent = function(student) {
+      Student.save(student);
+      students.push(student);
+    };
+
+    model.deleteStudent = function(studentId) {
+      var student = model.findStudent(studentId);
+      student.$remove();
+      students.splice(index, 1);
+      return index;
+    }; 
+    model.updateStudent = function(student) {
+      console.log("In updateSTudent: student= ");
+      console.log(student);
+      student.$update();
+      var updatedStudent = model.findStudent(student.id);
+      console.log("updatedStudent = ");
+      console.log(updatedStudent);
+      students.splice(index, 1, updatedStudent);
+    };
+    model.findStudent = function(studentId) {
+      for(i = 0; i < students.length; i++) {
+        var currentStudent = students[i];
+        if (currentStudent.id === studentId) {
+          var student = currentStudent;
+          index = i;
+          break;
+        }
+      }
+      return student;
+    };
+  }])
+;
+
+
+
+
+angular.module('bus_routes.models.schools', [])
+
+  .service('SchoolsModel', function() {
+    var model = this;
+    schools = [
+    {"name": "Surrey Chiristian High", "latitude": "49.170385", "longitude": "-122.796939"},
+    {"name": "William of Orange", "latitude": "49.112364", "longitude": "-122.738985"},
+    {"name": "Credo Christian Elementary", "latitude": "49.096882", "longitude": "-122.6161698"},
+    {"name": "Credo Christian High", "latitude": "49.095947", "longitude": "-122.617342"},
+    {"name": "Langley Christian Elementary", "latitude": "49.0885572", "longitude": "-122.5894669"},
+    {"name": "Langley Christian Middle/High", "latitude": "49.0885595", "longitude": "-122.5951462"},
+    {"name": "Surrey Christian Elementary", "latitude": "49.164418", "longitude": "-122.773024"},
+    {"name": "Cloverdale Christian", "latitude": "49.110539", "longitude": "-122.726684"},
+    ];
+    model.getSchools = function() {
+      return schools;
+    };
+  })
+;
+angular.module('bus_routes.students', [
+               ])
+  
+  .controller('StudentCrudCtrl', ["$scope", "Shared", "StudentsModel", "StudentMarkers", function($scope, Shared, StudentsModel, StudentMarkers) {
+    function loadStudents () {
+      $scope.students = StudentsModel.getStudents(); // Populate array of all students.
+    };
+    loadStudents();
+    $scope.shared = Shared;
+    $scope.formDisplay = false;
+    $scope.showDetails = false;
+    
+    // Define scoped functions.
+    $scope.deleteRouteFilter = deleteRouteFilter;
+    $scope.removeStudent = removeStudent;
+    $scope.editStudent = editStudent;
+    $scope.updateStudent = updateStudent;
+    $scope.addNewStudent = addNewStudent;
+    $scope.showStudent = showStudent;
+    $scope.showForm = showForm;
+    $scope.hideForm = hideForm;
+    $scope.seatsFilled = seatsFilled;
+    
+    // This function is called when the Route Filter is changed and deletes the value
+    // if All Routes are selected. If $scope.Route is not deleted, students with
+    // a Route attribute value of null will not be included in the filter results.
+    function deleteRouteFilter() {
+      if ($scope.Route === "") {
+        delete $scope.Route;
+      }
+    };
+
+    function showStudent(studentId) {
+      $scope.detailStudent = StudentsModel.findStudent(studentId);
+      $scope.showDetails = true;
+    };
+
+
+    //  Define controller functions. 
+    function addNewStudent() {
+      StudentsModel.addStudent($scope.NewStudent);
+      loadStudents();
+      $scope.NewStudent = {};
+    };
+    function showForm() {
+      $scope.formDisplay = true;
+    };
+    function hideForm() {
+      $scope.formDisplay = false;
+    };
+
+    function removeStudent(studentId) {
+      var index = StudentsModel.deleteStudent(studentId);
+      loadStudents();
+    };
+
+    function editStudent(studentId) {
+      $scope.selectedStudent = StudentsModel.findStudent(studentId);
+      
+      // Set extra attributes to be used in the updateStudent function 
+      // to determine if they were edited or not.
+      var student = $scope.selectedStudent;
+      student.original_address = student.street_address;
+      student.original_city = student.city;
+      student.original_postal_code = student.postal_code;
+      
+      $scope.showEdit = true; // Show the edit form.
+    };
+      
+
+    function updateStudent() {
+      var student = $scope.selectedStudent;
+      StudentsModel.updateStudent(student);
+      loadStudents();
+      if (anyChanges(student)) {
+        geocodeStudent(student);
+      }
+      $scope.showEdit = false;
+    };
+    
+    function anyChanges(student) {
+      var addressChanged = student.original_address !== student.street_address;
+      var cityChanged = student.original_city !== student.city;
+      var postalCodeChanged = student.original_postal_code !== student.postal_code;
+      return addressChanged || cityChanged || postalCodeChanged; 
+    };
+    function geocodeStudent(student) {
+      var address = composeAddress(student);
+      var geocoder = new google.maps.Geocoder();
+      geocoder.geocode( {'address':address}, function(results, status) {
+        if (status === google.maps.GeocoderStatus.OK) {
+          var marker = StudentMarkers.findMarker(student.id);
+          if (marker) {
+            marker.windowContent += "Address Changed To: " + student.street_address;
+            marker.position = results[0].geometry.location;
+            marker.setMap(null);
+            marker.setMap($scope.shared.map);
+          }
+          student.updatedLocation = results[0].geometry.location;
+        } else {
+          alert("Student marker update wasn't successful for the following reason: " + status);
+        }
+      });
+    };
+    function composeAddress(student) {
+      if (student.postal_code === null) {
+        student.postal_code = " ";
+      }
+      var address = student.street_address + "," + student.city + "," + "BC" + " " + student.postal_code;
+      return address;
+    };
+
+     function seatsFilled(results) {
+      var seatCount = 0;
+      angular.forEach(results, function(student) {
+        switch(student.grade) {
+          case 0:
+          case 1:
+          case 2:
+          case 3:
+          case 4:
+          case 5:
+          case 6:
+          case 7:
+            seatCount += 1;
+            break;
+          default:
+            seatCount += 1.5;
+        }
+      });
+      $scope.seatsAssigned = seatCount;
+    };
+
+  }])
+
+;
+    
+angular.module('bus_routes.map', [
+  'bus_routes.models.schools'
+])
+
+  .controller('MapCtrl', ["$scope", "Shared", "SchoolsModel", function($scope, Shared, SchoolsModel) {
+
+    // Define scoped functions.
+    $scope.printMap = printMap;
+    function initialize() {
+      $scope.schools = SchoolsModel.getSchools(); // Load the schools from the schools model
+      $scope.shared = Shared; // Load variables to be shared between submodules
+      // Set map options.
+      var mapOptions = {
+        center: { lat: 49.1387, lng: -122.8218 },
+        zoom: 13
+      };
+      // Define the map.
+      $scope.shared.map = new google.maps.Map(document.getElementById("map-canvas"), mapOptions);
+      // Set the markers for the schools.
+      angular.forEach($scope.schools, function(school) {
+        var marker = new google.maps.Marker({
+          position: new google.maps.LatLng(school.latitude, school.longitude),
+          map: $scope.shared.map,
+          label: 'A',
+          icon: '<%= image_url("blue_MarkerA.png") %>',
+          title: school.name
+        });
+      });
+    }; // End of initialize function.
+    // Wait for the window to load and then run the initialize function.
+    google.maps.event.addDomListener(window, 'load', initialize);
+    
+    function printMap() {
+      var content = window.document.getElementById("map-canvas"); // get the map details
+      var newWindow = window.open(); // open a new window
+      newWindow.document.write(content.innerHTML); // write the map into the new window
+      newWindow.print(); // print the new window
+    };
+    
+  }])
+;
 // This factory defines the connection to the back end database and is
 // referenced in the controller using the name which is the first
 // argument.
@@ -11,40 +276,308 @@ busRoutesApp.factory('Student', ["$resource", function($resource) {
   return $resource("/api/students/:id", {id: "@id"}, {update: {method: "PUT"}});
 }]);
 
-// This section defines a controller that belongs to the busRoutesApp
-// module. It takes two arguments: a name and either 
-// an array of dependencies with the last element being the function or
-// it can just take a function. Because of the way Rails minifies JS
-// files in production, we need to use the array method of specifying
-// dependencies.
-// The name is referenced in the view to assign control of that element
-// and its children to this specific controller.
-busRoutesApp.controller('StudentsListCtrl', ["$scope", "Student", function ($scope, Student) {
-  
-  // Define scoped variables and collections.  
-  $scope.formDisplay = false;
-  $scope.students = Student.query(); 
-  
-  // Define scoped functions.
-  $scope.addNewStudent = addNewStudent;
-  $scope.showForm = showForm;
-  $scope.hideForm = hideForm;
-  
-  //  Define controller functions. 
-  function addNewStudent() {
-    student = Student.save($scope.NewStudent);
-    $scope.students.push(student);
-    $scope.NewStudent = {};
-  };
-  function showForm() {
-    $scope.formDisplay = true;
-  };
-  function hideForm() {
-    $scope.formDisplay = false;
-  };
-}]);
+angular.module('bus_routes.route_assignment', [])
 
-busRoutesApp.controller('MapCtrl', ["$scope", "$filter", "Student", function ($scope, $filter, Student) {
+  .controller('RouteAssignmentCtrl', ['$scope', 'Shared', 'StudentsModel', 'StudentMarkers', function($scope, Shared, StudentsModel, StudentMarkers) {
+
+    $scope.shared = Shared;
+    $scope.bulkAssignmentRoute = null;
+
+
+    // Define scoped functions.
+    $scope.updateStudentRouteInfo = updateStudentRouteInfo;
+    $scope.clearSelected = clearSelected;
+    $scope.massAssignRoute = massAssignRoute;
+    $scope.removeFromSelections = removeFromSelections;
+
+    function removeFromSelections(topSiblingId, index) {
+      var marker = StudentMarkers.getMarker(topSiblingId);
+      var numberOfSiblings = marker.siblings.length + 1;
+      $scope.shared.selections.splice(index, numberOfSiblings);
+    };
+
+    function clearSelected() {
+      $scope.shared.selections = [];
+    };
+
+    function massAssignRoute() {
+      angular.forEach($scope.shared.selections, function(student) {
+        var route = parseInt($scope.bulkAssignmentRoute);
+        student.bus_route = route;
+        StudentsModel.updateStudent(student);
+        if (StudentMarkers.getMarker(student.id)) {
+          changeMarkerColor(student.id, route);
+        }
+      });
+      $scope.shared.selections = [];
+      $scope.bulkAssignmentRoute = null;
+      $scope.shared.beginSelection = false;
+    };
+
+
+
+    function updateStudentRouteInfo() {
+      var student = $scope.shared.clickedStudent;
+      var route = parseInt(student.bus_route);
+      var stop = student.stop;
+      var mon_thurs = student.mon_thurs;
+      var friday = student.friday;
+      student.bus_route = route;
+      StudentsModel.updateStudent(student);
+      var marker = StudentMarkers.getMarker(student.id);
+      changeSiblingsRoute(marker, route, stop, mon_thurs, friday);
+      changeMarkerColor(student.id, route);
+    };
+
+    function changeMarkerColor(studentId, route) {
+      var icon = StudentMarkers.setMarkerColor(route);
+      var marker = StudentMarkers.getMarker(studentId);
+      marker.icon = icon;
+      marker.setMap(null);
+      marker.setMap($scope.shared.map);
+    };
+
+    function changeSiblingsRoute(marker, route, stop, mon_thurs, friday) {
+      if (marker.siblings.length !== 0) {
+        angular.forEach(marker.siblings, function(siblingId) {
+          var sibling = StudentsModel.findStudent(siblingId);
+          sibling.bus_route = route;
+          sibling.stop = stop;
+          sibling.mon_thurs = mon_thurs;
+          sibling.friday = friday;
+          StudentsModel.updateStudent(sibling); 
+        });
+      }
+    };
+
+  }])
+
+;
+
+
+    
+
+    
+
+
+
+angular.module('bus_routes.markers', [])
+
+  .service('StudentMarkers', function() {
+    var model = this;
+    var studentMarkers = {};
+    var existingStudentMarkers = [];
+
+    model.addExistingStudentMarker = function(latitude, longitude, id) {
+      existingStudentMarkers.push([latitude, longitude, id]);
+    };
+
+    model.addMarker = function(marker, id) {
+      studentMarkers[id] = marker;
+    };
+    
+    model.deleteAll = function() {
+      // Clear existing markers from the map.
+      for (var i in studentMarkers) { // Loop through the hashmap with i being equal to the student id which is used as the key in the hashmap.
+        var marker = model.getMarker(i); // Find the marker associated with the student id.
+        marker.setMap(null); // Remove it from the map.
+      }
+      studentMarkers = {}; // Empty the hashmap of markers.
+      existingStudentMarkers = []; // Empty the existing students markers array.
+    };
+
+    model.getMarker = function(studentId) {
+      return studentMarkers[studentId];
+    };
+
+    model.checkForSibling = function(lat, lng) {
+      var matching = false;
+      if (existingStudentMarkers.length !== 0) { // Only check if there are existing markers.
+        // Iterate through array looking for existing lat and long
+        for (i = 0; i < existingStudentMarkers.length; i++) {
+          if (lat === existingStudentMarkers[i][0] && lng === existingStudentMarkers[i][1]) {
+             matching = existingStudentMarkers[i][2]; // If there's a match, set matching value to id of student with matching location.
+          } 
+        }
+      }
+      return matching;
+    };
+    
+    model.setMarkerColor = function(bus_route) {
+      switch (bus_route) {
+        case 101: 
+          icon = '<%= image_url("brightBlue.png") %>';
+          break;
+        case 102: 
+          icon = '<%= image_url("brightGreen.png") %>';
+          break;
+        case 103: 
+          icon = '<%= image_url("camoGreen.png") %>';
+          break;
+        case 104: 
+          icon = '<%= image_url("cream.png") %>';
+          break;
+        case 105: 
+          icon = '<%= image_url("grey.png") %>';
+          break;
+        case 106: 
+          icon = '<%= image_url("lightBlue.png") %>';
+          break;
+        case 107: 
+          icon = '<%= image_url("lightOrange.png") %>';
+          break;
+        case 108: 
+          icon = '<%= image_url("medGreen.png") %>';
+          break;
+        case 201: 
+          icon = '<%= image_url("offWhite.png") %>';
+          break;
+        case 202: 
+          icon = '<%= image_url("orange.png") %>';
+          break;
+        case 203: 
+          icon = '<%= image_url("paleYellow.png") %>';
+          break;
+        case 204: 
+          icon = '<%= image_url("pink.png") %>';
+          break;
+        case 205: 
+          icon = '<%= image_url("purple.png") %>';
+          break;
+        case 206: 
+          icon = '<%= image_url("tan.png") %>';
+          break;
+        case 207: 
+          icon = '<%= image_url("teal.png") %>';
+          break;
+        case 208: 
+          icon = '<%= image_url("yellow.png") %>';
+          break;
+        default:
+          icon = '<%= image_url("red.png") %>';
+      }
+      return icon;
+    };
+
+  })
+  .controller('MarkerCtrl', ['StudentsModel', 'StudentMarkers', 'Shared', '$scope', function (StudentsModel, StudentMarkers, Shared, $scope) {
+
+    // Define scoped functions.
+    $scope.resetMarkers = resetMarkers;
+    $scope.addMarkers = addMarkers;
+
+    $scope.shared = Shared;
+
+    var infowindow = new google.maps.InfoWindow({
+      content: ""
+    });
+
+    function resetMarkers(results) {
+      StudentMarkers.deleteAll();
+      setMarkers(results);
+    };
+    function addMarkers(results) {
+      console.log(results);
+      setMarkers(results);
+    };
+
+    function setSiblingMarkerInfo(siblingId, student) {
+       var marker = StudentMarkers.getMarker(siblingId); // Get siblings marker.
+       markerLabel = parseInt(marker.label) + 1; // Increase label number by 1.
+       marker.label = markerLabel.toString(); // Update the label value.
+       marker.siblings.push(student.id); // Add the student to the siblings array 
+       marker.windowContent += student.first_name + " " + student.school + " " + student.grade + "<br>"; // Update the sibling's window content to include this students info.
+    };
+
+    function createNewStudentMarker(student) {
+      var id = student.id;
+      var windowContent = student.last_name.toUpperCase() +  "<br>" + student.street_address + "<br>" + student.first_name + " " + student.school + " " + student.grade + "<br>";
+      var icon = StudentMarkers.setMarkerColor(student.bus_route); 
+      var studentLatLng;
+      // If students address, city, or postal code has been changed since last load from the 
+      // database, they will have n updatedLocation attribute. Use this instead of the 
+      // latitude and longitude if it exists.
+      // The alternative is to reload all students from the database after any changes to location
+      // but that would require another database query which is unnecessary.
+      if (student.updatedLocation) {
+        studentLatLng = student.updatedLocation;
+      } else {
+        studentLatLng = new google.maps.LatLng(student.latitude, student.longitude);
+      }
+      var label = "1";
+      var marker = new google.maps.Marker({
+        id: id,
+        position: studentLatLng,
+        icon: icon,
+        label: label,
+        siblings: [],
+        windowContent: windowContent, 
+        draggable: true,
+        map: $scope.shared.map,
+        title: student.first_name + " " + student.last_name
+      });
+      addMarkerListener(marker);    
+      StudentMarkers.addMarker(marker, id);
+
+
+
+    }; 
+    function addMarkerListener(marker) {
+      marker.addListener('click', function() {
+        var student = StudentsModel.findStudent(this.id); // Find the student associated with the marker.
+        infowindow.setContent(this.windowContent); // Set the infoWindow content to the windowContent associated with the marker.
+        infowindow.open($scope.shared.map, this); // Open the infoWindow.
+        $scope.$apply($scope.shared.clickedStudent = student); // Assign the student to clickedStudent to be used to edit route and stop info.
+        // If the user has clicked the route mass assign button, 
+        // add this student to the array of students selected for mass assignment.
+        if ($scope.shared.beginSelection) {
+          // Make sure student isn't already in the selections array.
+          var alreadyAdded = false;
+          angular.forEach($scope.shared.selections, function(existingStudent) {
+            if (existingStudent.id === student.id) {
+              alreadyAdded = true;
+            }
+          }); 
+          if (!alreadyAdded) {
+            student.topSibling = true;
+            $scope.$apply($scope.shared.selections.push(student)); 
+            // Check for any siblings and also add them to the array of students selected for mass assignment.
+            if (this.siblings.length !== 0) {
+              for(i = 0; i < this.siblings.length; i++) {
+                var siblingId = this.siblings[i];
+                var sibling = StudentsModel.findStudent(siblingId);
+                sibling.topSibling = false;
+                $scope.$apply($scope.shared.selections.push(sibling));
+              }
+            } 
+          } else {
+            alert("This student has already been added.");
+          }
+        }           
+      });
+    };
+    
+
+    function setMarkers(results) {
+      angular.forEach(results, function(student) {
+       var siblingId = StudentMarkers.checkForSibling(student.latitude, student.longitude);
+       if (siblingId) {
+         setSiblingMarkerInfo(siblingId, student);
+       } else {
+         createNewStudentMarker(student);
+         StudentMarkers.addExistingStudentMarker(student.latitude, student.longitude, student.id);
+       }
+      });
+    };   
+
+
+  }])
+
+;
+
+
+
+busRoutesApp.controller('MainCtrl', ["$scope", "$filter", "StudentsModel", "Shared", function ($scope, $filter, StudentsModel, Shared) {
 // If I just perform the Student.query() and then execute 
 // the setMarkers function, it fails because I'm trying to access
 // the $scope.students before the query is completed.
@@ -52,403 +585,17 @@ busRoutesApp.controller('MapCtrl', ["$scope", "$filter", "Student", function ($s
 // setMarkers function within that callback function, I ensure the
 // query is complete before I try to access the data.  
   // Define scoped variables and collections.
-  var students = Student.query(function() {
-    $scope.students = students;
-  });
-  $scope.lastLatLng = null;
-  $scope.origin = "Start";
-  $scope.destination = "Destination";
-  $scope.selectedRoute = "";
-  $scope.seatsAssigned = 0;
-  $scope.showDetails = false;
-  $scope.editDetails = false;
+  $scope.shared = Shared;
   $scope.beginSelection = false;
   $scope.bulkAssignmentRoute = "";
   $scope.selections = [];
-  $scope.firstOrderSelection = "last_name";
   $scope.clickedStudent = {"first_name":"Choose student by clicking on their marker"};
   $scope.editStudent = {};
-  $scope.routes = {
-    "101": {
-      "waypoints": {
-      },
-      "capacity": 40
-    }
-  };
 
-  // Define local variables.
-  var directionsDisplay1;
-  var directionsDisplay2;
-  var directionsService = new google.maps.DirectionsService();
-  var markerIdCounter = 0; // used to assign unique id to each marker added by user
-//  var routeMarkers = {}; // used to track the markers created by the user
-  var studentMarkers = {};
-  var existingStudentMarkers = [];
-  var infowindow = new google.maps.InfoWindow({
-    content: ""
-  });
 
-  // Define scoped functions.
-  $scope.calcRoute = calcRoute;
-  $scope.resetMarkers = resetMarkers;
-  $scope.addMarkers = addMarkers;
-  $scope.removeStudent = removeStudent;
-  $scope.subRouteOne = {
-  }; // used to hold first 6 waypoints for rendering 
-  $scope.subRouteTwo = {
-  }; // used to hold next 6 waypoints if necessary 
-  $scope.subRouteThree = {
-  }; // used to hold the next 6 waypoints if necessary 
-  $scope.subRouteFour = {}; // used to hold the last 6 waypoints if necessary
-  
-  function initialize() {
-    // Initialize the required directions renderers.
-    directionsDisplay1 = new google.maps.DirectionsRenderer({draggable: true});
-    directionsDisplay2 = new google.maps.DirectionsRenderer({draggable: true});
-    // Set map options.
-    var mapOptions = {
-      center: { lat: 49.1387, lng: -122.8218 },
-      zoom: 13
-    };
-    // Define the map.
-    $scope.map = new google.maps.Map(document.getElementById("map-canvas"), mapOptions);
-    // Add an event listener so we know when a user clicks on the map.
-    // This click event will allow us to have access to the LatLng that 
-    // was clicked.
-//    $scope.map.addListener('click', function(event) {
-//      $scope.lastLatLng = event.latLng
-//      insertMarker(event.latLng);
-//    });
-    // Set the marker for the schools.
-    // *Change this to iterate through an array of all
-    // six schools to put them all on the map.
-    marker = new google.maps.Marker({
-      position: new google.maps.LatLng(49.170385, -122.796939),
-      map: $scope.map,
-      label: 'A',
-      icon: '<%= image_url("blue_MarkerA.png") %>',
-      title: "Surrey High"
-    });
-    marker = new google.maps.Marker({
-      position: new google.maps.LatLng(49.112364, -122.738985),
-      map: $scope.map,
-      label: 'A',
-      icon: '<%= image_url("blue_MarkerA.png") %>',
-      title: "William of Orange"
-    });
-    marker = new google.maps.Marker({
-      position: new google.maps.LatLng(49.096882, -122.6161698),
-      map: $scope.map,
-      label: 'A',
-      icon: '<%= image_url("blue_MarkerA.png") %>',
-      title: "Credo Christian Elementary"
-    });
-    marker = new google.maps.Marker({
-      position: new google.maps.LatLng(49.095947, -122.617342),
-      map: $scope.map,
-      label: 'A',
-      icon: '<%= image_url("blue_MarkerA.png") %>',
-      title: "Credo Christian High"
-    });
-    marker = new google.maps.Marker({
-      position: new google.maps.LatLng(49.0885572, -122.5894669),
-      map: $scope.map,
-      label: 'A',
-      icon: '<%= image_url("blue_MarkerA.png") %>',
-      title: "Langley Christian Elementary"
-    });
-    marker = new google.maps.Marker({
-      position: new google.maps.LatLng(49.0885595, -122.5951462),
-      map: $scope.map,
-      label: 'A',
-      icon: '<%= image_url("blue_MarkerA.png") %>',
-      title: "Langley Christian Middle/High"
-    });
-    marker = new google.maps.Marker({
-      position: new google.maps.LatLng(49.164418, -122.773024),
-      map: $scope.map,
-      label: 'A',
-      icon: '<%= image_url("blue_MarkerA.png") %>',
-      title: "Surrey Christian Elementary"
-    });
-    marker = new google.maps.Marker({
-      position: new google.maps.LatLng(49.110539, -122.726684),
-      map: $scope.map,
-      label: 'A',
-      icon: '<%= image_url("blue_MarkerA.png") %>',
-      title: "Cloverdale Christian"
-    });
-    
-    // Set up which map the routes should be displayed on.
-    directionsDisplay1.setMap($scope.map);
-    directionsDisplay2.setMap($scope.map);
-    // For now, calcRoutes is called here but it should be user
-    // initiated once that functionality is implemented.
-  }; // End of initialize function.
-  // Wait for the window to load and then run the initialize function.
-  google.maps.event.addDomListener(window, 'load', initialize);
-  
-  function uniqueId() {
-    return ++markerIdCounter;
-  };
-  function insertMarker(latLng) {
-    var id = uniqueId(); // retrieve a unique id
-    marker = new google.maps.Marker({
-      id: id,
-      draggable: true,
-      position: latLng,
-      map: $scope.map,
-      title: "Stop"
-    });
-    routeMarkers[id] = marker; // add this marker to the markers object with the id as the key
-  };
-  function resetMarkers(results) {
-    deleteStudentMarkers();
-    setMarkers(results);
-  };
-  function addMarkers(results) {
-    setMarkers(results);
-  };
-  function setMarkers(results) {
-    existingStudentMarkers = [];
-    var id;
-    var windowContent;
-    var icon;
-    var studentLatLng;
-    var label = "1";
-    angular.forEach(results, function(student) {
-     var existingAddress = checkForExistingMarker(student.latitude, student.longitude);
-     if (existingAddress) {
-       marker = studentMarkers[existingAddress];
-       markerNumber = parseInt(marker.label) + 1;
-       marker.label = markerNumber.toString();
-       marker.siblings.push(student.id); 
-       marker.windowContent += student.first_name + " " + student.school + " " + student.grade + "<br>";
-     } else {
-       id = student.id;
-       windowContent = student.last_name.toUpperCase() +  "<br>" + student.street_address + "<br>" + student.first_name + " " + student.school + " " + student.grade + "<br>"; 
-       icon = setMarkerColor(student.bus_route); 
-       if (student.updatedLocation) {
-         studentLatLng = student.updatedLocation;
-       } else {
-         studentLatLng = new google.maps.LatLng(student.latitude, student.longitude);
-       }
-       marker = new google.maps.Marker({
-         id: id,
-         position: studentLatLng,
-         icon: icon,
-         label: label,
-         siblings: [],
-         windowContent: windowContent, 
-         draggable: true,
-         map: $scope.map,
-         title: student.first_name + " " + student.last_name
-       });
-       marker.addListener('click', function() {
-         var student = $filter('filter')($scope.students, {id:this.id}, true)[0];
-         infowindow.setContent(this.windowContent);
-         infowindow.open($scope.map, this);
-         $scope.$apply($scope.clickedStudent = student);
-         if ($scope.beginSelection) {
-           $scope.$apply($scope.selections.push(student));
-           if (this.siblings.length !== 0) {
-             for(i = 0; i < this.siblings.length; i++) {
-               var siblingId = this.siblings[i];
-               var sibling = $filter('filter')($scope.students, {id:siblingId}, true)[0];
-               $scope.$apply($scope.selections.push(sibling));
-             }
-           } 
-         }           
-       });
-       studentMarkers[id] = marker;
-       existingStudentMarkers.push([student.latitude, student.longitude, id]);
-     }
-    });
-    function checkForExistingMarker(lat, lng) {
-      var matching = false;
-      if (existingStudentMarkers.length !== 0) {
-        for (i = 0; i < existingStudentMarkers.length; i++) {
-          if (lat === existingStudentMarkers[i][0] && lng === existingStudentMarkers[i][1]) {
-             matching = existingStudentMarkers[i][2];
-          } 
-        }
-        return matching;
-      } else {
-        return false;
-      }
-    };
-  };   
-  function setMarkerColor(bus_route) {
-    switch (bus_route) {
-      case 101: 
-        icon = '<%= image_url("brightBlue.png") %>';
-        break;
-      case 102: 
-        icon = '<%= image_url("brightGreen.png") %>';
-        break;
-      case 103: 
-        icon = '<%= image_url("camoGreen.png") %>';
-        break;
-      case 104: 
-        icon = '<%= image_url("cream.png") %>';
-        break;
-      case 105: 
-        icon = '<%= image_url("grey.png") %>';
-        break;
-      case 106: 
-        icon = '<%= image_url("lightBlue.png") %>';
-        break;
-      case 107: 
-        icon = '<%= image_url("lightOrange.png") %>';
-        break;
-      case 108: 
-        icon = '<%= image_url("medGreen.png") %>';
-        break;
-      case 201: 
-        icon = '<%= image_url("offWhite.png") %>';
-        break;
-      case 202: 
-        icon = '<%= image_url("orange.png") %>';
-        break;
-      case 203: 
-        icon = '<%= image_url("paleYellow.png") %>';
-        break;
-      case 204: 
-        icon = '<%= image_url("pink.png") %>';
-        break;
-      case 205: 
-        icon = '<%= image_url("purple.png") %>';
-        break;
-      case 206: 
-        icon = '<%= image_url("tan.png") %>';
-        break;
-      case 207: 
-        icon = '<%= image_url("teal.png") %>';
-        break;
-      case 208: 
-        icon = '<%= image_url("yellow.png") %>';
-        break;
-      default:
-        icon = '<%= image_url("red.png") %>';
-    }
-    return icon;
-  };
-  function deleteStudentMarkers() {
-    angular.forEach(studentMarkers, function(marker) {
-      marker.setMap(null);
-    });
-  };
-
-  function removeStudent(student_id) {
-    for(i=0; i < $scope.students.length; i++) {
-      var compareStudent = $scope.students[i];
-      if (student_id === compareStudent.id) {
-        var student = compareStudent;
-        var index = i;
-        break;
-      }
-    }
-    student.$remove();
-    $scope.students.splice(index, 1);
-  };
-  $scope.showStudentDetails = function(student_id) {
-    for(i=0; i < $scope.students.length; i++) {
-      var compareStudent = $scope.students[i];
-      if (student_id === compareStudent.id) {
-        var student = compareStudent;
-        var index = i;
-        break;
-      }
-    }
-    $scope.detailStudent = student;
-    $scope.showDetails = true;
-  };
-  $scope.showStudentEdit = function(student_id) {
-    for(i=0; i < $scope.students.length; i++) {
-      var compareStudent = $scope.students[i];
-      if (student_id === compareStudent.id) {
-        var student = compareStudent;
-        var index = i;
-        break;
-      }
-    }
-    $scope.editStudent = student;
-    $scope.editStudent.original_address = student.street_address;
-    $scope.editStudent.original_city = student.city;
-    $scope.editStudent.original_postal_code = student.postal_code;
-    $scope.editDetails = true;
-  };
-  $scope.updateEditStudent = function() {
-    var student = $scope.editStudent;
-    var addressChanged = $scope.editStudent.original_address !== student.street_address;
-    var cityChanged = $scope.editStudent.original_city !== student.city;
-    var postalCodeChanged = $scope.editStudent.original_postal_code !== student.postal_code;
-    student.$update();
-    if (addressChanged || cityChanged || postalCodeChanged) {
-      if (student.postal_code === null) {
-        student.postal_code = " ";
-      }
-      var address = student.street_address + "," + student.city + "," + "BC" + " " + student.postal_code;
-      var geocoder = new google.maps.Geocoder();
-      geocoder.geocode( {'address':address}, function(results, status) {
-        if (status === google.maps.GeocoderStatus.OK) {
-          if (studentMarkers[student.id]) {
-            var marker = studentMarkers[student.id];  
-            marker.windowContent += "Address Changed To: " + student.street_address;
-            marker.position = results[0].geometry.location;
-            marker.setMap(null);
-            marker.setMap($scope.map);
-          }
-          student.updatedLocation = results[0].geometry.location;
-        } else {
-          alert("Student marker update wasn't successful for the following reason: " + status);
-        }
-      });
-    }
-    $scope.editDetails = false;
-  };
   
 
 
-  $scope.firstStep = function() {
-    // alert(Object.keys(markers).length);
-    defineSubRoutes();
-    console.log($scope.subRouteOne);
-    calcRoute();
-  };
-  function defineSubRoutes() {
-    count = 0;
-    route = $scope.selectedRoute;
-    angular.forEach(markers, function(marker) {
-      var markerLat = markerLatitude(marker);
-      var markerLng = markerLongitude(marker);
-      // $scope.routes[route].waypoints.push(markerLatLng);
-      count++;
-      $scope.subRouteOne[count];
-      console.log($scope.subRouteOne);
-      // The first 5 waypoints go into the subRouteOne array
-      if(count < 6) { 
-        $scope.subRouteOne[count].lat = markerLat;
-        $scope.subRouteOne[count].lng = markerLng;
-      // The sixth waypoint is the last waypoint in the subRouteOne array and the first waypoint in the subRouteTwo array. It essentially connects the two subRoutes together.
-      } else if(count == 6) {           
-        $scope.subRouteOne[count].lat = markerLat;
-        $scope.subRouteOne[count].lng = markerLng;
-        $scope.subRouteTwo[count].lat = markerLat;
-        $scope.subRouteTwo[count].lng = markerLng;
-      // Waypoints 7-10 go into subRouteTwo  
-      } else if(count > 6 && count < 11) {
-        $scope.subRouteTwo[count].lat = markerLat;
-        $scope.subRouteTwo[count].lng = markerLng;
-      // Eleventh waypoint is a connector waypoint for subRoutes Two and Three  
-      } else if(count === 11) {
-        $scope.subRouteTwo[count].lat = markerLat;
-        $scope.subRouteTwo[count].lng = markerLng;
-        $scope.subRouteThree[count].lat = markerLat;
-        $scope.subRouteThree[count].lng = markerLng;
-      }
-    });
-  };
   function markerLatitude(marker) {
     var lat = marker.getPosition().lat();
     return lat;
@@ -457,78 +604,10 @@ busRoutesApp.controller('MapCtrl', ["$scope", "$filter", "Student", function ($s
     var lng = marker.getPosition().lng();
     return lng;
   };
-  function calcRoute() {
-    var start = new google.maps.LatLng($scope.subRouteOne.one.lat, $scope.subRouteOne.one.lng);
-    var end = new google.maps.LatLng($scope.subRouteOne.lat, $scope.subRouteOne.lng);
-    console.log(start + end);
-    // var waypoints = findWaypoints($scope.subRouteOne);
-    var request = {
-      origin:start,
-      destination:end,
-      // waypoints: waypoints,
-      travelMode: google.maps.TravelMode.DRIVING
-    };
-    directionsService.route(request, function(result, status) {
-      if (status == google.maps.DirectionsStatus.OK) {
-        directionsDisplay1.setDirections(result);
-      }
-    });
-    deleteRouteMarkers();
-  };
-  function findWaypoints(waypointsArray) {
-    var waypoints = [];
-    for (var i = 1; i < waypointsArray.length - 1; i++) {
-      waypoints.push(waypointsArray[i]);
-    }
-    return waypoints;
-  };
   function deleteRouteMarkers() {
     angular.forEach(markers, function(marker) {
       marker.setMap(null);
     });
-  };
-  $scope.updateStudent = function() {
-    for(i=0; i < $scope.students.length; i++) {
-      var student = $scope.students[i];
-      if ($scope.clickedStudent.id === student.id) {
-        student.bus_route = parseInt($scope.clickedStudent.bus_route);
-        break;
-      }
-    }
-    student.$update();
-    marker = studentMarkers[$scope.clickedStudent.id];
-    if (marker.siblings.length !== 0) {
-      for (i=0; i < marker.siblings.length; i++) {
-        var siblingId = marker.siblings[i];
-        for (c = 0; c < $scope.students.length; c++) {
-          var siblingStudent = $scope.students[c];
-          if (siblingStudent.id === siblingId) {
-            siblingStudent.bus_route = student.bus_route;
-            siblingStudent.stop = student.stop;
-            siblingStudent.mon_thurs = student.mon_thurs;
-            siblingStudent.friday = student.friday;
-            siblingStudent.$update();
-            break;
-          }
-        }
-      }
-    }
-    icon = setMarkerColor($scope.clickedStudent.bus_route);
-    marker.icon = icon;
-    marker.setMap(null);
-    marker.setMap($scope.map);
-    $scope.clickedStudent = {};
-  };
-  $scope.printMap = function() {
-    var content = window.document.getElementById("map-canvas"); // get you map details
-    var newWindow = window.open(); // open a new window
-    newWindow.document.write(content.innerHTML); // write the map into the new window
-    newWindow.print(); // print the new window
-  };
-  $scope.deleteRouteFilter = function() {
-    if ($scope.Route === "") {
-      delete $scope.Route;
-    }
   };
   $scope.clearSelected = function() {
     $scope.selections = [];
@@ -541,28 +620,15 @@ busRoutesApp.controller('MapCtrl', ["$scope", "$filter", "Student", function ($s
     angular.forEach($scope.selections, function(student) {
       student.bus_route = route;
       student.$update();
+      if (studentMarkers[student.id]) {
+        var marker = studentMarkers[student.id];
+        var icon = setMarkerColor(student.bus_route);
+        marker.icon = icon;
+        marker.setMap(null);
+        marker.setMap($scope.map);
+      }
     });
   };
     
 
-  $scope.seatsFilled = function(results) {
-    var seatCount = 0;
-    angular.forEach(results, function(student) {
-      switch(student.grade) {
-        case 0:
-        case 1:
-        case 2:
-        case 3:
-        case 4:
-        case 5:
-        case 6:
-        case 7:
-          seatCount += 1;
-          break;
-        default:
-          seatCount += 1.5;
-      }
-    });
-    $scope.seatsAssigned = seatCount;
-  };
 }]);
