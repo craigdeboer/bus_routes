@@ -1,0 +1,240 @@
+// This submodule is used to manage student markers.
+angular.module('bus_routes.markers', [])
+
+  // This service is used by other submodules to access markers.
+  .service('StudentMarkers', function() {
+    var model = this;
+    var studentMarkers = {};
+    var existingStudentMarkers = [];
+
+    // Adds an existing student marker location to the array.
+    // Every student is checked against this list to see if the 
+    // student's location is unique. If it is unique a marker is added
+    // and if it isn't unique, the student is added as a sibling
+    // of an existing marker.
+    model.addExistingStudentMarker = function(latitude, longitude, id) {
+      existingStudentMarkers.push([latitude, longitude, id]);
+    };
+
+    // Add the newly created marker to the array so it can 
+    // be tracked and manipulated.
+    model.addMarker = function(marker, id) {
+      studentMarkers[id] = marker;
+    };
+    
+    // Clears all existing markers from the map.
+    model.deleteAll = function() {
+      for (var i in studentMarkers) { // Loop through the hashmap with i being equal to the student id which is used as the key in the hashmap.
+        var marker = model.getMarker(i); // Find the marker associated with the student id.
+        marker.setMap(null); // Remove it from the map.
+      }
+      studentMarkers = {}; // Empty the hashmap of markers.
+      existingStudentMarkers = []; // Empty the existing students markers array.
+    };
+
+    // Find a marker associated with a particlular student id.
+    // Markers are stored with the student id as the key.
+    model.getMarker = function(studentId) {
+      return studentMarkers[studentId];
+    };
+
+    // Check to see if location is unique.
+    // If not, return the id of the student with a marker at 
+    // that location. 
+    model.checkForSibling = function(lat, lng) {
+      var matching = false;
+      if (existingStudentMarkers.length !== 0) { // Only check if there are existing markers.
+        // Iterate through array looking for existing lat and long
+        for (i = 0; i < existingStudentMarkers.length; i++) {
+          if (lat === existingStudentMarkers[i][0] && lng === existingStudentMarkers[i][1]) {
+             matching = existingStudentMarkers[i][2]; // If there's a match, set matching value to id of student with matching location.
+          } 
+        }
+      }
+      return matching;
+    };
+    
+    // Returns the icon associated with the supplied bus_route.
+    model.setMarkerColor = function(bus_route) {
+      switch (bus_route) {
+        case 101: 
+          icon = '<%= image_url("brightBlue.png") %>';
+          break;
+        case 102: 
+          icon = '<%= image_url("brightGreen.png") %>';
+          break;
+        case 103: 
+          icon = '<%= image_url("camoGreen.png") %>';
+          break;
+        case 104: 
+          icon = '<%= image_url("cream.png") %>';
+          break;
+        case 105: 
+          icon = '<%= image_url("grey.png") %>';
+          break;
+        case 106: 
+          icon = '<%= image_url("lightBlue.png") %>';
+          break;
+        case 107: 
+          icon = '<%= image_url("lightOrange.png") %>';
+          break;
+        case 108: 
+          icon = '<%= image_url("medGreen.png") %>';
+          break;
+        case 201: 
+          icon = '<%= image_url("offWhite.png") %>';
+          break;
+        case 202: 
+          icon = '<%= image_url("orange.png") %>';
+          break;
+        case 203: 
+          icon = '<%= image_url("paleYellow.png") %>';
+          break;
+        case 204: 
+          icon = '<%= image_url("pink.png") %>';
+          break;
+        case 205: 
+          icon = '<%= image_url("purple.png") %>';
+          break;
+        case 206: 
+          icon = '<%= image_url("tan.png") %>';
+          break;
+        case 207: 
+          icon = '<%= image_url("teal.png") %>';
+          break;
+        case 208: 
+          icon = '<%= image_url("yellow.png") %>';
+          break;
+        default:
+          icon = '<%= image_url("red.png") %>';
+      }
+      return icon;
+    };
+  })
+
+  .controller('MarkerCtrl', ['StudentsModel', 'StudentMarkers', 'Shared', '$scope', function (StudentsModel, StudentMarkers, Shared, $scope) {
+
+    // Define scoped functions.
+    $scope.resetMarkers = resetMarkers;
+    $scope.addMarkers = addMarkers;
+
+    $scope.shared = Shared;
+
+    // Initialize the info Window. A single info Window
+    // is used and the content is updated as required.
+    // If the user wants to show more than one info Window
+    // at a time, a new info Window would need to be
+    // instantiated for each student.
+    var infowindow = new google.maps.InfoWindow({
+      content: ""
+    });
+
+    // Deletes all existing markers and creates new markers
+    // based on the results of the filtered criteria supplied
+    // by the user.
+    function resetMarkers(results) {
+      StudentMarkers.deleteAll();
+      setMarkers(results);
+    };
+
+    // Adds markers to the existing markers already on the map.
+    // *** Need to add a function to ensure there is no marker duplication ***.
+    function addMarkers(results) {
+      setMarkers(results);
+    };
+
+    // Sets the student markers.
+    function setMarkers(results) {
+      angular.forEach(results, function(student) {
+       var siblingId = StudentMarkers.checkForSibling(student.latitude, student.longitude);
+       if (siblingId) {
+         setSiblingMarkerInfo(siblingId, student);
+       } else {
+         createNewStudentMarker(student);
+         StudentMarkers.addExistingStudentMarker(student.latitude, student.longitude, student.id);
+       }
+      });
+    };   
+
+    // Updates marker label and window content to add sibling info.
+    function setSiblingMarkerInfo(siblingId, student) {
+       var marker = StudentMarkers.getMarker(siblingId); // Get siblings marker.
+       markerLabel = parseInt(marker.label) + 1; // Increase label number by 1.
+       marker.label = markerLabel.toString(); // Update the label value.
+       marker.siblings.push(student.id); // Add the student to the siblings array 
+       marker.windowContent += student.first_name + " " + student.school + " " + student.grade + "<br>"; // Update the sibling's window content to include this students info.
+    };
+
+    // Creates a new marker.
+    function createNewStudentMarker(student) {
+      var id = student.id;
+      var windowContent = student.last_name.toUpperCase() +  "<br>" + student.street_address + "<br>" + student.first_name + " " + student.school + " " + student.grade + "<br>";
+      var icon = StudentMarkers.setMarkerColor(student.bus_route); 
+      var studentLatLng;
+      // If students address, city, or postal code has been changed since last load from the 
+      // database, they will have n updatedLocation attribute. Use this instead of the 
+      // latitude and longitude if it exists.
+      // The alternative is to reload all students from the database after any changes to location
+      // but that would require another database query which is unnecessary.
+      if (student.updatedLocation) {
+        studentLatLng = student.updatedLocation;
+      } else {
+        studentLatLng = new google.maps.LatLng(student.latitude, student.longitude);
+      }
+      var label = "1";
+      var marker = new google.maps.Marker({
+        id: id,
+        position: studentLatLng,
+        icon: icon,
+        label: label,
+        siblings: [],
+        windowContent: windowContent, 
+        draggable: true,
+        map: $scope.shared.map,
+        title: student.first_name + " " + student.last_name
+      });
+      addMarkerListener(marker);    
+      StudentMarkers.addMarker(marker, id);
+    }; 
+
+    // Adds a click listner to the marker. The listener is used to display the 
+    // info Window for the marker, assigns the student associated with the marker to the
+    // clickedStudent variable for use in updating route and stop info, and
+    // adding the student associated with the marker to the bulk route
+    // assignment list if that mode has been selected.
+    function addMarkerListener(marker) {
+      marker.addListener('click', function() {
+        var student = StudentsModel.findStudent(this.id); // Find the student associated with the marker.
+        infowindow.setContent(this.windowContent); // Set the infoWindow content to the windowContent associated with the marker.
+        infowindow.open($scope.shared.map, this); // Open the infoWindow.
+        $scope.$apply($scope.shared.clickedStudent = student); // Assign the student to clickedStudent to be used to edit route and stop info.
+        // If the user has clicked the route mass assign button, 
+        // add this student to the array of students selected for mass assignment.
+        if ($scope.shared.beginSelection) {
+          // Make sure student isn't already in the selections array.
+          var alreadyAdded = false;
+          angular.forEach($scope.shared.selections, function(existingStudent) {
+            if (existingStudent.id === student.id) {
+              alreadyAdded = true;
+            }
+          }); 
+          if (!alreadyAdded) {
+            student.topSibling = true;
+            $scope.$apply($scope.shared.selections.push(student)); 
+            // Check for any siblings and also add them to the array of students selected for mass assignment.
+            if (this.siblings.length !== 0) {
+              for(i = 0; i < this.siblings.length; i++) {
+                var siblingId = this.siblings[i];
+                var sibling = StudentsModel.findStudent(siblingId);
+                sibling.topSibling = false;
+                $scope.$apply($scope.shared.selections.push(sibling));
+              }
+            } 
+          } else {
+            alert("This student has already been added.");
+          }
+        }           
+      });
+    };
+  }])
+;

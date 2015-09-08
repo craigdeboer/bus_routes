@@ -1,0 +1,43 @@
+// This submodule initializes the map and sets the school markers.
+// It also provides the method for printing the map.
+angular.module('bus_routes.map', [
+  'bus_routes.models.schools'
+])
+
+  .controller('MapCtrl', ["$scope", "Shared", "SchoolsModel", function($scope, Shared, SchoolsModel) {
+
+    // Define scoped functions.
+    $scope.printMap = printMap;
+    function initialize() {
+      $scope.schools = SchoolsModel.getSchools(); // Load the schools from the schools model
+      $scope.shared = Shared; // Load variables to be shared between submodules
+      // Set map options.
+      var mapOptions = {
+        center: { lat: 49.1387, lng: -122.8218 },
+        zoom: 13
+      };
+      // Define the map.
+      $scope.shared.map = new google.maps.Map(document.getElementById("map-canvas"), mapOptions);
+      // Set the markers for the schools.
+      angular.forEach($scope.schools, function(school) {
+        var marker = new google.maps.Marker({
+          position: new google.maps.LatLng(school.latitude, school.longitude),
+          map: $scope.shared.map,
+          label: 'A',
+          icon: '<%= image_url("blue_MarkerA.png") %>',
+          title: school.name
+        });
+      });
+    }; // End of initialize function.
+    // Wait for the window to load and then run the initialize function.
+    google.maps.event.addDomListener(window, 'load', initialize);
+    
+    function printMap() {
+      var content = window.document.getElementById("map-canvas"); // get the map details
+      var newWindow = window.open(); // open a new window
+      newWindow.document.write(content.innerHTML); // write the map into the new window
+      newWindow.print(); // print the new window
+    };
+    
+  }])
+;
