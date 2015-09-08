@@ -43,7 +43,7 @@ angular.module('bus_routes.models.students', ["ngResource"])
     };
     model.addStudent = function(student) {
       Student.save(student);
-      students.push(student);
+      students = Student.query();
     };
 
     model.deleteStudent = function(studentId) {
@@ -55,7 +55,7 @@ angular.module('bus_routes.models.students', ["ngResource"])
     model.updateStudent = function(student) {
       console.log("In updateSTudent: student= ");
       console.log(student);
-      student.$update();
+      Student.update(student);
       var updatedStudent = model.findStudent(student.id);
       console.log("updatedStudent = ");
       console.log(updatedStudent);
