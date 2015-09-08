@@ -192,22 +192,20 @@
       <input class="form-control" type="text" placeholder="Friday Time" ng-model="shared.clickedStudent.friday">
       <button ng-click="updateStudentRouteInfo()">Update Student</button>
     </div>
-  </div>
-  <div ng-controller="MainCtrl">
-    <p ng-show="beginSelection">You are in Bulk Route Assignment mode.
-    <button ng-click="beginSelection = false">Click here to exit this mode</button>
+    <p ng-show="shared.beginSelection">You are in Bulk Route Assignment mode.
+    <button ng-click="shared.beginSelection = false">Click here to exit this mode</button>
     </p>
-    <button ng-click="beginSelection = true">Start Selecting Students</button>
+    <button ng-click="shared.beginSelection = true">Start Selecting Students</button>
     <input type="text" placeholder="Route" ng-model="bulkAssignmentRoute">
     <div class="multiple-edit" >
-      <ul ng-repeat="selection in selections">
+      <ul ng-repeat="selection in shared.selections">
         <li>
           {{selection.first_name}} {{selection.last_name}}
-          <button ng-click="removeFromSelections($index)">Remove</button>
+          <button ng-show="selection.topSibling" ng-click="removeFromSelections(selection.id, $index)">Remove</button>
         </li>
       </ul>
     <button ng-click="clearSelected()">Clear Students</button>
-    <button ng-click="bulkAssignRoute()">Assign Route To Selected Students</button>
+    <button ng-click="massAssignRoute()">Assign Route To Selected Students</button>
     </div>
   </div>
   <div id="map-display" ng-controller="MapCtrl">

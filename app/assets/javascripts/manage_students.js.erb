@@ -15,6 +15,7 @@ var busRoutesApp = angular.module('busRoutesApp', [
     var shared = {};
     shared.map = {};
     shared.selections = [];
+    shared.beginSelection = false;
     shared.results = [];
     shared.clickedStudent = {};
     return shared;
@@ -46,16 +47,18 @@ angular.module('bus_routes.models.students',[])
       return index;
     }; 
     model.updateStudent = function(student) {
-      console.log(student.first_name + student.bus_route);
+      console.log("In updateSTudent: student= ");
+      console.log(student);
       student.$update();
       var updatedStudent = model.findStudent(student.id);
+      console.log("updatedStudent = ");
+      console.log(updatedStudent);
       students.splice(index, 1, updatedStudent);
     };
     model.findStudent = function(studentId) {
       for(i = 0; i < students.length; i++) {
         var currentStudent = students[i];
         if (currentStudent.id === studentId) {
-          console.log(studentId);
           var student = currentStudent;
           index = i;
           break;
@@ -278,9 +281,39 @@ angular.module('bus_routes.route_assignment', [])
   .controller('RouteAssignmentCtrl', ['$scope', 'Shared', 'StudentsModel', 'StudentMarkers', function($scope, Shared, StudentsModel, StudentMarkers) {
 
     $scope.shared = Shared;
+    $scope.bulkAssignmentRoute = null;
+
 
     // Define scoped functions.
     $scope.updateStudentRouteInfo = updateStudentRouteInfo;
+    $scope.clearSelected = clearSelected;
+    $scope.massAssignRoute = massAssignRoute;
+    $scope.removeFromSelections = removeFromSelections;
+
+    function removeFromSelections(topSiblingId, index) {
+      var marker = StudentMarkers.getMarker(topSiblingId);
+      var numberOfSiblings = marker.siblings.length + 1;
+      $scope.shared.selections.splice(index, numberOfSiblings);
+    };
+
+    function clearSelected() {
+      $scope.shared.selections = [];
+    };
+
+    function massAssignRoute() {
+      angular.forEach($scope.shared.selections, function(student) {
+        var route = parseInt($scope.bulkAssignmentRoute);
+        student.bus_route = route;
+        StudentsModel.updateStudent(student);
+        if (StudentMarkers.getMarker(student.id)) {
+          changeMarkerColor(student.id, route);
+        }
+      });
+      $scope.shared.selections = [];
+      $scope.bulkAssignmentRoute = null;
+      $scope.shared.beginSelection = false;
+    };
+
 
 
     function updateStudentRouteInfo() {
@@ -294,7 +327,6 @@ angular.module('bus_routes.route_assignment', [])
       var marker = StudentMarkers.getMarker(student.id);
       changeSiblingsRoute(marker, route, stop, mon_thurs, friday);
       changeMarkerColor(student.id, route);
-      $scope.shared.students = StudentsModel.getStudents();
     };
 
     function changeMarkerColor(studentId, route) {
@@ -321,6 +353,13 @@ angular.module('bus_routes.route_assignment', [])
   }])
 
 ;
+
+
+    
+
+    
+
+
 
 angular.module('bus_routes.markers', [])
 
@@ -491,16 +530,29 @@ angular.module('bus_routes.markers', [])
         $scope.$apply($scope.shared.clickedStudent = student); // Assign the student to clickedStudent to be used to edit route and stop info.
         // If the user has clicked the route mass assign button, 
         // add this student to the array of students selected for mass assignment.
-        if ($scope.beginSelection) {
-          $scope.$apply($scope.shared.selections.push(student)); 
-          // Check for any siblings and also add them to the array of students selected for mass assignment.
-          if (this.siblings.length !== 0) {
-            for(i = 0; i < this.siblings.length; i++) {
-              var siblingId = this.siblings[i];
-              var sibling = StudentsModel.findStudent(siblingId);
-              $scope.$apply($scope.shared.selections.push(sibling));
+        if ($scope.shared.beginSelection) {
+          // Make sure student isn't already in the selections array.
+          var alreadyAdded = false;
+          angular.forEach($scope.shared.selections, function(existingStudent) {
+            if (existingStudent.id === student.id) {
+              alreadyAdded = true;
             }
-          } 
+          }); 
+          if (!alreadyAdded) {
+            student.topSibling = true;
+            $scope.$apply($scope.shared.selections.push(student)); 
+            // Check for any siblings and also add them to the array of students selected for mass assignment.
+            if (this.siblings.length !== 0) {
+              for(i = 0; i < this.siblings.length; i++) {
+                var siblingId = this.siblings[i];
+                var sibling = StudentsModel.findStudent(siblingId);
+                sibling.topSibling = false;
+                $scope.$apply($scope.shared.selections.push(sibling));
+              }
+            } 
+          } else {
+            alert("This student has already been added.");
+          }
         }           
       });
     };
