@@ -44,15 +44,14 @@ angular.module('bus_routes.models.students', ["ngResource"])
     
     model.addStudent = function(student) {
       var addedStudent = Student.save(student); 
-      console.log(addedStudent);
       students.push(addedStudent);
     };
 
     model.deleteStudent = function(studentId) {
       var student = model.findStudent(studentId);
+      console.log(student);
       Student.remove(student);
       students.splice(index, 1);
-      return index;
     }; 
     model.updateStudent = function(student) {
       Student.update(student);
@@ -147,7 +146,7 @@ angular.module('bus_routes.students', [
     };
 
     function removeStudent(studentId) {
-      var index = StudentsModel.deleteStudent(studentId);
+      StudentsModel.deleteStudent(studentId);
       loadStudents();
     };
 
