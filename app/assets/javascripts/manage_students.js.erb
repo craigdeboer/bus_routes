@@ -41,9 +41,11 @@ angular.module('bus_routes.models.students', ["ngResource"])
         return students;
       }
     };
+    
     model.addStudent = function(student) {
-      Student.save(student);
-      students = Student.query();
+      var addedStudent = Student.save(student); 
+      console.log(addedStudent);
+      students.push(addedStudent);
     };
 
     model.deleteStudent = function(studentId) {
@@ -53,12 +55,8 @@ angular.module('bus_routes.models.students', ["ngResource"])
       return index;
     }; 
     model.updateStudent = function(student) {
-      console.log("In updateSTudent: student= ");
-      console.log(student);
       Student.update(student);
       var updatedStudent = model.findStudent(student.id);
-      console.log("updatedStudent = ");
-      console.log(updatedStudent);
       students.splice(index, 1, updatedStudent);
     };
     model.findStudent = function(studentId) {
