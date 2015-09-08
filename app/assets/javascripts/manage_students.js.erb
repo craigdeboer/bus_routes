@@ -48,7 +48,7 @@ angular.module('bus_routes.models.students', ["ngResource"])
 
     model.deleteStudent = function(studentId) {
       var student = model.findStudent(studentId);
-      student.$remove();
+      Student.remove(student);
       students.splice(index, 1);
       return index;
     }; 
