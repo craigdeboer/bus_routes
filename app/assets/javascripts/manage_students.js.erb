@@ -21,8 +21,14 @@ var busRoutesApp = angular.module('busRoutesApp', [
     return shared;
   })
 ;
-angular.module('bus_routes.models.students',[])
+angular.module('bus_routes.models.students',["ng-resource"])
 
+  // This factory defines the connection to the back end database and is
+  // referenced in the controller using the name which is the first
+  // argument.
+  .factory('Student', ["$resource", function($resource) {
+    return $resource("/api/students/:id", {id: "@id"}, {update: {method: "PUT"}});
+  }])
   .service('StudentsModel', ["Student", function(Student) {
     var model = this;
     var students = [];
@@ -269,12 +275,6 @@ angular.module('bus_routes.map', [
     
   }])
 ;
-// This factory defines the connection to the back end database and is
-// referenced in the controller using the name which is the first
-// argument.
-busRoutesApp.factory('Student', ["$resource", function($resource) {
-  return $resource("/api/students/:id", {id: "@id"}, {update: {method: "PUT"}});
-}]);
 
 angular.module('bus_routes.route_assignment', [])
 
@@ -577,58 +577,6 @@ angular.module('bus_routes.markers', [])
 
 
 
-busRoutesApp.controller('MainCtrl', ["$scope", "$filter", "StudentsModel", "Shared", function ($scope, $filter, StudentsModel, Shared) {
-// If I just perform the Student.query() and then execute 
-// the setMarkers function, it fails because I'm trying to access
-// the $scope.students before the query is completed.
-// If I provide a function within the query, and call the
-// setMarkers function within that callback function, I ensure the
-// query is complete before I try to access the data.  
-  // Define scoped variables and collections.
-  $scope.shared = Shared;
-  $scope.beginSelection = false;
-  $scope.bulkAssignmentRoute = "";
-  $scope.selections = [];
-  $scope.clickedStudent = {"first_name":"Choose student by clicking on their marker"};
-  $scope.editStudent = {};
-
-
-  
-
-
-  function markerLatitude(marker) {
-    var lat = marker.getPosition().lat();
-    return lat;
-  };
-  function markerLongitude(marker) {
-    var lng = marker.getPosition().lng();
-    return lng;
-  };
-  function deleteRouteMarkers() {
-    angular.forEach(markers, function(marker) {
-      marker.setMap(null);
-    });
-  };
-  $scope.clearSelected = function() {
-    $scope.selections = [];
-  };
-  $scope.removeFromSelections = function(index) {
-    $scope.selections.splice(index, 1);
-  };
-  $scope.bulkAssignRoute = function() {
-    var route = parseInt($scope.bulkAssignmentRoute);
-    angular.forEach($scope.selections, function(student) {
-      student.bus_route = route;
-      student.$update();
-      if (studentMarkers[student.id]) {
-        var marker = studentMarkers[student.id];
-        var icon = setMarkerColor(student.bus_route);
-        marker.icon = icon;
-        marker.setMap(null);
-        marker.setMap($scope.map);
-      }
-    });
-  };
     
 
 }]);
