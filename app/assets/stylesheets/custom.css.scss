@@ -91,6 +91,7 @@ table {
   margin-bottom: 50px;
 }
 th {
+  text-align: center;
   width: 10%;
   &.narrow {
     width: 5%;
@@ -100,6 +101,7 @@ th {
   }
 }
 td {
+  text-align: center;
   height: 30px;
 }
 .delete-button,

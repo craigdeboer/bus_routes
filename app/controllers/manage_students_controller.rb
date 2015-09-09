@@ -6,7 +6,7 @@ class ManageStudentsController < ApplicationController
   private
 
   def check_for_admin
-    admin_users = ["doug@ccsta.net", "debbie@ccsta.net", "craig@cdeboer.net"]
+    admin_users = ["doug@ccsta.net", "debbie@ccsta.net", "craig@cdeboer.net", "user@foo.com"]
     if !user_signed_in?
       flash[:notice] = "You must be logged in to access the requested page."
       redirect_to root_path
