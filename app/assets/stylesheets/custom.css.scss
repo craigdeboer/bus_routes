@@ -1,10 +1,89 @@
 @import "bootstrap-sass-official/assets/stylesheets/_bootstrap-sprockets";
 @import "bootstrap-sass-official/assets/stylesheets/_bootstrap";
 
-#map-canvas {
-  height: 1000px;
-  width: 100%;
+/*** Generic Styling ***/
+
+.main-content {
+  padding: 0 20px;
 }
+
+
+/*** Header ***/
+
+#header {
+  h1 {
+    margin: 0;
+    padding: 25px 0;
+    text-align: center;
+  }
+  .header-links {
+    text-align: center;
+  }
+  span {
+    color: white;
+    font-size: 20px;
+    margin-right: 15px;
+  }
+  .signup-button,
+  .login-button {
+    margin: 0 15px;
+  }
+  .import-students-button {
+    margin-left: 25px;
+    margin-right: 25px;
+  }
+  a {
+    color: white;
+    &:hover {
+      text-decoration: none;
+    }
+  }
+  width: 100%;
+  height: 150px;
+  background-color: #4C7193; 
+  padding: 0 20px;
+}
+
+/*** Flash Messages ***/
+
+.flash-messages {
+  margin-top: 20px;
+  font-size: 20px;
+  text-align: center;
+}
+
+/*** Import Students Page ***/
+
+.import-students {
+  text-align: center;
+  .submit-button {
+    margin-top: 20px;
+  }
+}
+.choose-file {
+  margin: auto;
+}
+
+/*** Manage Students Page ***/
+
+.search-box {
+  font-size: 16px;
+  input {
+    width: 10%;
+    margin-bottom: 10px;
+  }
+}
+.filter-results {
+  margin-top: 10px;
+  font-size: 16px;
+  color: blue;
+}
+.filter-criteria {
+  font-size: 16px;
+}
+
+
+
 li {
   list-style: none;
 }
@@ -17,14 +96,23 @@ th {
     width: 5%;
   }
   &.table-button {
-    width: 5%;
+    width: 45px;
   }
+}
+td {
+  height: 30px;
+}
+.delete-button,
+.edit-button,
+.details-button {
+  width: 70px;
+}
+.seats-required {
+  font-size: 20px;
+  margin-left: 20px;
 }
 .edit-student {
   margin: 50px 0 25px;
-}
-.filter-results {
-  color: blue;
 }
 .heading {
   font-weight: bold;
@@ -32,23 +120,119 @@ th {
 tr:nth-child(even) {
   background-color: #BEC6D8;
 }
-td.delete-button,
-td.edit-button,
-td.details-button {
-  background-color: white;
+
+/*** Add Student Form ***/
+
+#add-new-student-button,
+#add-student-submit,
+#finished-adding-button {
+  margin-top: 20px;
 }
-#edit-student-form {
+#add-new-student-button {
+  display: block;
+}
+#add-student-form {
+  display: inline-block;
+  vertical-align: top;
+  width: 30%;
   input {
-    width: 10%;
+    width: 70%;
+  }
+}
+
+/*** Edit Student Form ***/
+
+#edit-student-form {
+  vertical-align: top;
+  display: inline-block;
+  width: 30%;
+  input {
+    width: 70%;
   }
   textarea {
-    width: 300px;
+    width: 70%;
     height: 200px;
   }
+}
+#save-changes-button,
+#close-without-saving {
+  width: 70%;
+  margin-top: 20px;
+}
+
+/*** Student Details List ***/
+
+#details-list {
+  width: 30%;
+  display: inline-block;
+  vertical-align: top;
+}
+#hide-details-button {
+  margin-top: 20px;
 }
 #comment-details {
   width: 400px;
 }
-.search-box input {
-  width: 10%;
+
+/*** Adding Markers ***/
+
+#reset-markers,
+#add-markers {
+  margin-top: 20px;
 }
+
+/*** Edit Route Info ***/
+
+.edit-single {
+  margin: 20px 0;
+  padding: 10px;
+  width: 40%;
+  display: inline-block;
+  vertical-align: top;
+  border: 3px solid black;
+  h3 {
+    padding: 0;
+    margin: 0;
+  }
+  input {
+    display: inline-block;
+    width: 100px;
+  }
+}
+.multiple-edit {
+  margin: 20px 0;
+  padding: 10px;
+  width: 55%;
+  display: inline-block;
+  vertical-align: top;
+  border: 3px solid black;
+  input {
+    margin-bottom: 20px;
+    display: block;
+  }
+  h3 {
+    margin: 0;
+    padding: 0;
+  }
+}
+#start-selecting-students {
+  margin: 30px 30px;
+}
+
+
+/*** Map ***/
+
+#map-display {
+  .btn {
+    margin: 15px 0;
+  }
+}
+#map-canvas {
+  height: 1000px;
+  width: 100%;
+}
+
+
+
+
+

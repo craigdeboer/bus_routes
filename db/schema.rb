@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150826200620) do
+ActiveRecord::Schema.define(version: 20150908235205) do
 
   create_table "students", force: :cascade do |t|
     t.string   "first_name",        limit: 255
@@ -24,10 +24,10 @@ ActiveRecord::Schema.define(version: 20150826200620) do
     t.string   "city",              limit: 255
     t.string   "postal_code",       limit: 255
     t.integer  "bus_route",         limit: 4
-    t.datetime "created_at",                      null: false
-    t.datetime "updated_at",                      null: false
-    t.float    "latitude",          limit: 24
-    t.float    "longitude",         limit: 24
+    t.datetime "created_at",                                               null: false
+    t.datetime "updated_at",                                               null: false
+    t.decimal  "latitude",                        precision: 11, scale: 8
+    t.decimal  "longitude",                       precision: 11, scale: 8
     t.text     "comments",          limit: 65535
     t.string   "additional_phones", limit: 255
     t.string   "additional_email",  limit: 255

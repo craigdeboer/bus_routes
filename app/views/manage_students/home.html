@@ -1,68 +1,70 @@
 <div class="container-fluid" ng-app="busRoutesApp">
   <div class="col-md-12" ng-controller="StudentCrudCtrl">
       <div class="search-box">
-        Search:
+        SEARCH:
         <input class="form-control" type="text" placeholder="Search" ng-model="Search">
       </div>
-      FILTERS:
-      <select ng-model="Route" ng-change="deleteRouteFilter()"> 
-        <option value="" default selected>All Routes</option>
-        <option value="!">No Route</option>
-        <option value="101">101</option>
-        <option value="102">102</option>
-        <option value="103">103</option>
-        <option value="104">104</option>
-        <option value="105">105</option>
-        <option value="106">106</option>
-        <option value="107">107</option>
-        <option value="108">108</option>
-        <option value="201">201</option>
-        <option value="202">202</option>
-        <option value="203">203</option>
-        <option value="204">204</option>
-        <option value="205">205</option>
-        <option value="206">206</option>
-        <option value="207">207</option>
-        <option value="208">208</option>
-      </select>
-      <select ng-model="School"> 
-        <option value="" default selected>All Schools</option>
-        <option value="SCS">Surrey Christian</option>
-        <option value="LCS">Langley Christian</option>
-        <option value="CCES">Credo Elementary</option>
-        <option value="CCHS">Credo High</option>
-        <option value="WO">William of Orange</option>
-        <option value="CCS">Cloverdale Christian</option>
-      </select>
-      <select ng-model="City" >
-        <option value="" default selected>All Cities</option>
-        <option value="Surrey">Surrey</option>
-        <option value="Langley">Langley</option>
-        <option value="Cloverdale">Cloverdale</option>
-        <option value="Abbotsford">Abbotsford</option>
-        <option value="Delta">Delta</option>
-        <option value="New Westminster">New Westminster</option>
-        <option value="Coquitlam">Coquitlam</option>
-        <option value="Burnaby">Burnaby</option>
-        <option value="Port Coquitlam">Port Coquitlam</option>
-        <option value="Port Moody">Port Moody</option>
-        <option value="North Delta">North Delta</option>
-        <option value="Aldergrove">Aldergrove</option>
-        <option value="White Rock">White Rock</option>
-        <option value="Fort Langley">Fort Langley</option>
-      </select>
-      ORDER By:
-      <select ng-model="firstOrderSelection">
-        <option value="last_name">Last Name</option>
-        <option value="school">School</option>
-        <option value="city">City</option>
-      </select>
-      <select ng-model="secondOrderSelection">
-        <option value="" default selected>Secondary Ordering</option>
-        <option value="last_name">Last Name</option>
-        <option value="school">School</option>
-        <option value="city">City</option>
-      </select>
+      <div class="filter-criteria">
+        FILTERS:
+        <select ng-model="Route" ng-change="deleteRouteFilter()"> 
+          <option value="" default selected>All Routes</option>
+          <option value="!">No Route</option>
+          <option value="101">101</option>
+          <option value="102">102</option>
+          <option value="103">103</option>
+          <option value="104">104</option>
+          <option value="105">105</option>
+          <option value="106">106</option>
+          <option value="107">107</option>
+          <option value="108">108</option>
+          <option value="201">201</option>
+          <option value="202">202</option>
+          <option value="203">203</option>
+          <option value="204">204</option>
+          <option value="205">205</option>
+          <option value="206">206</option>
+          <option value="207">207</option>
+          <option value="208">208</option>
+        </select>
+        <select ng-model="School"> 
+          <option value="" default selected>All Schools</option>
+          <option value="SCS">Surrey Christian</option>
+          <option value="LCS">Langley Christian</option>
+          <option value="CCES">Credo Elementary</option>
+          <option value="CCHS">Credo High</option>
+          <option value="WO">William of Orange</option>
+          <option value="CCS">Cloverdale Christian</option>
+        </select>
+        <select ng-model="City" >
+          <option value="" default selected>All Cities</option>
+          <option value="Surrey">Surrey</option>
+          <option value="Langley">Langley</option>
+          <option value="Cloverdale">Cloverdale</option>
+          <option value="Abbotsford">Abbotsford</option>
+          <option value="Delta">Delta</option>
+          <option value="New Westminster">New Westminster</option>
+          <option value="Coquitlam">Coquitlam</option>
+          <option value="Burnaby">Burnaby</option>
+          <option value="Port Coquitlam">Port Coquitlam</option>
+          <option value="Port Moody">Port Moody</option>
+          <option value="North Delta">North Delta</option>
+          <option value="Aldergrove">Aldergrove</option>
+          <option value="White Rock">White Rock</option>
+          <option value="Fort Langley">Fort Langley</option>
+        </select>
+        ORDER By:
+        <select ng-model="firstOrderSelection">
+          <option value="last_name">Last Name</option>
+          <option value="school">School</option>
+          <option value="city">City</option>
+        </select>
+        <select ng-model="secondOrderSelection">
+          <option value="" default selected>Secondary Ordering</option>
+          <option value="last_name">Last Name</option>
+          <option value="school">School</option>
+          <option value="city">City</option>
+        </select>
+      </div>
       <p class="filter-results">
 <!-- The results variable is populated by the ng-repeat directive below -->
         <ng-pluralize 
@@ -87,6 +89,7 @@
           <th class="narrow">1 or 2 Way</th>
           <th class="table-button"></th>
           <th class="table-button"></th>
+          <th class="table-button"></th>
         </tr>
 <!-- The 'as results' allows the result of the filter to be stored in a variable called results so the information can be used elsewhere. In this case it is used to display the number of students that meet the user's filter criteria. -->
 <tr ng-repeat="student in (shared.results = (students | filter:Search | filter:{bus_route:Route} | filter:{school:School} |filter:City | orderBy:[firstOrderSelection, secondOrderSelection]))">
@@ -101,17 +104,18 @@
           <td>{{student.mon_thurs}}</td>
           <td>{{student.friday}}</td>
           <td>{{student.return_trip}}</td>
-          <td class="delete-button"><button ng-click="removeStudent(student.id)">Delete</button></td>
-          <td class="details-button" ><button ng-click="showStudent(student.id)">Details</button></td>
-          <td class="edit-button" ><button ng-click="editStudent(student.id)">Edit</button></td>
+          <td><button class="btn btn-info btn-xs details-button" ng-click="showStudent(student.id)">Details</button></td>
+          <td><button class="btn btn-warning btn-xs edit-button" ng-click="editStudent(student.id)">Edit</button></td>
+          <td><button class="btn btn-danger btn-xs delete-button" ng-click="removeStudent(student.id)">Delete</button></td>
         </tr>
       </table>
     <div>
-      <button ng-click="seatsFilled(shared.results)">Number of Seats Assigned For This Group</button>
-      <p>{{seatsAssigned}}</p>
+      <button class="btn btn-success" ng-click="seatsFilled(shared.results)">Calculate Number of Seats Required For This Group</button>
+      <span class="seats-required">{{seatsAssigned}}</span>
     </div>
-    <button ng-hide="formDisplay" ng-click="showForm()">Add A New Student</button>
-    <form ng-cloak ng-show="formDisplay" ng-submit="addNewStudent()">
+    <button id="add-new-student-button" class="btn btn-primary" ng-hide="formDisplay" ng-click="showForm()">Add A New Student</button>
+    <form id="add-student-form" ng-cloak ng-show="formDisplay" ng-submit="addNewStudent()">
+      <h1>Adding A New Student</h1>
       <div class="form-group">
         <input class="form-control" type="text" placeholder="First Name" ng-model="NewStudent.first_name">
         <input class="form-control" type="text" placeholder="Last Name" ng-model="NewStudent.last_name">
@@ -122,10 +126,10 @@
         <input class="form-control" type="text" placeholder="Street Address" ng-model="NewStudent.street_address">
         <input class="form-control" type="text" placeholder="City" ng-model="NewStudent.city">
         <input class="form-control" type="text" placeholder="Postal Code" ng-model="NewStudent.postal_code">
-        <input type="submit" value="Add New Student">
+        <input class="btn btn-primary" id="add-student-submit" type="submit" value="Add New Student">
       </div>
+      <button class="btn btn-success" id="finished-adding-button" ng-cloak ng-show="formDisplay" ng-click="hideForm()">Finished Adding Students</button>
     </form>
-    <button ng-cloak ng-show="formDisplay" ng-click="hideForm()">Finished Adding Students</button>
       <form id="edit-student-form"  ng-cloak ng-show="showEdit" ng-submit="updateStudent()" >
         <h1>Edit Student</h1>
         <div class="form-group">
@@ -148,11 +152,12 @@
           <label>Postal Code:</label><input class="form-control" type="text" ng-model="selectedStudent.postal_code">
           <label>Comments:</label><br>
           <textarea ng-model="selectedStudent.comments"></textarea> <br>
-          <input type="submit" value="Save Changes">
-          <button ng-click="showEdit = false">Close Without Saving</button>
+          <input class="btn btn-primary" id="save-changes-button" type="submit" value="Save Changes">
+          <button class="btn btn-success" id="close-without-saving" ng-click="showEdit = false">Close Without Saving</button>
         </div>
       </form>
       <ul id="details-list" ng-show="showDetails" ng-model="detailStudent">
+        <h1>Student Details</h1>
         <li><span class="heading">Name:</span> {{detailStudent.first_name}} {{detailStudent.last_name}}</li>
         <li><span class="heading">Route:</span> {{detailStudent.bus_route}}</li>
         <li><span class="heading">Stop:</span> {{detailStudent.stop}}</li>
@@ -174,42 +179,43 @@
         </li>
         <li><span class="heading">Latitude:</span> {{detailStudent.latitude}}</li>
         <li><span class="heading">Longitude:</span> {{detailStudent.longitude}}</li>
+        <li><button class="btn btn-success" id="hide-details-button" ng-show="showDetails" ng-click="showDetails = false">Hide Student Details</button></li> 
       </ul>
-      <button ng-show="showDetails" ng-click="showDetails = false">Hide Student Details</button> 
   </div>
-  <div ng-controller="MarkerCtrl">
-    <button ng-click="resetMarkers(shared.results)">Show Only Students In List On Map</button> 
-    <button ng-click="addMarkers(shared.results)">Add Students In List To Map</button> 
+  <div class="col-md-12" ng-controller="MarkerCtrl">
+    <button class="btn btn-warning" id="reset-markers" ng-click="resetMarkers(shared.results)">Show Only Students In List On Map</button> 
+    <button class="btn btn-info" id="add-markers" ng-click="addMarkers(shared.results)">Add Students In List To Map</button> 
   </div>
-  <div ng-controller="RouteAssignmentCtrl">
-    <div class="edit-student">
-      <p>{{shared.clickedStudent.first_name}}</p>
-      <p>{{shared.clickedStudent.last_name}}</p>
-      <p>{{shared.clickedStudent.school}}</p>
+  <div class="col-md-12" ng-controller="RouteAssignmentCtrl">
+    <div class="edit-single">
+      <h3>Edit Route And Stop Info</h3>
+      <p>Click on a student's marker icon to select him/her for editing route info.</p>
+      <span>{{shared.clickedStudent.first_name}} {{shared.clickedStudent.last_name}}</span>
       <input class="form-control" type="text" placeholder="Route" ng-model="shared.clickedStudent.bus_route">
       <input class="form-control" type="text" placeholder="Stop" ng-model="shared.clickedStudent.stop">
       <input class="form-control" type="text" placeholder="Mon-Thurs Time" ng-model="shared.clickedStudent.mon_thurs">
       <input class="form-control" type="text" placeholder="Friday Time" ng-model="shared.clickedStudent.friday">
-      <button ng-click="updateStudentRouteInfo()">Update Student</button>
+      <button class="btn btn-primary" ng-click="updateStudentRouteInfo()">Update Student</button>
     </div>
-    <p ng-show="shared.beginSelection">You are in Bulk Route Assignment mode.
-    <button ng-click="shared.beginSelection = false">Click here to exit this mode</button>
-    </p>
-    <button ng-click="shared.beginSelection = true">Start Selecting Students</button>
-    <input type="text" placeholder="Route" ng-model="bulkAssignmentRoute">
-    <div class="multiple-edit" >
+    <button class="btn btn-success btn-lg" id="start-selecting-students" ng-hide="shared.beginSelection" ng-click="shared.beginSelection = true">Click Here To Enter Bulk Route Assignment Mode</button>
+    <div class="multiple-edit" ng-show="shared.beginSelection">
+      <h3>Bulk Edit Route Info</h3>
+      <p>You are in Bulk Route Assignment mode.
+        <button class="btn btn-success" ng-click="shared.beginSelection = false">Click here to exit this mode</button>
+      </p>
+      <input type="text" placeholder="Route" ng-model="bulkAssignmentRoute">
       <ul ng-repeat="selection in shared.selections">
         <li>
           {{selection.first_name}} {{selection.last_name}}
-          <button ng-show="selection.topSibling" ng-click="removeFromSelections(selection.id, $index)">Remove</button>
+          <button class="btn btn-danger btn-xs" ng-show="selection.topSibling" ng-click="removeFromSelections(selection.id, $index)">Remove</button>
         </li>
       </ul>
-    <button ng-click="clearSelected()">Clear Students</button>
-    <button ng-click="massAssignRoute()">Assign Route To Selected Students</button>
+    <button class="btn btn-info" ng-click="clearSelected()">Clear Students</button>
+    <button class="btn btn-primary" ng-click="massAssignRoute()">Assign Route To Selected Students</button>
     </div>
   </div>
-  <div id="map-display" ng-controller="MapCtrl">
-    <button ng-click="printMap()">Print Map</button> 
+  <div class="col-md-12" id="map-display" ng-controller="MapCtrl">
+    <button class="btn btn-success" ng-click="printMap()">Print Map</button> 
     <div id="map-canvas">
     </div>
   </div>

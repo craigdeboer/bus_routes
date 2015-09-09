@@ -25,6 +25,7 @@ angular.module('bus_routes.models.students', ["ngResource"])
     model.addStudent = function(student) {
       var addedStudent = Student.save(student); 
       students.push(addedStudent);
+      console.log(students);
     };
 
     // Remove the student from the database and the students array.

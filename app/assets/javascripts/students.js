@@ -5,7 +5,7 @@ angular.module('bus_routes.students', [])
     $scope.shared = Shared;
     $scope.formDisplay = false;
     $scope.showDetails = false;
-    $scope.firstOrderSelecton = "last_name";
+    $scope.firstOrderSelection = "last_name";
     loadStudents();
     
     // Define scoped functions.

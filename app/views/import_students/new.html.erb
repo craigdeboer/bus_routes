@@ -1,11 +1,8 @@
-<h1>This is the import students new page</h1>
+<div class="import-students">
+  <h1>Import Students</h1>
 
-<%= form_tag langley_import_path, multipart: true do %>
-  <%= file_field_tag :file, input_html: { class: "btn btn-primary" } %>
-  <%= submit_tag "Import Langley Students", class: "submit-button btn btn-primary" %>
-<% end %>
-
-<%= form_tag standard_import_path, multipart: true do %>
-  <%= file_field_tag :file, input_html: { class: "btn btn-primary" } %>
-  <%= submit_tag "Import Standard Students", class: "submit-button btn btn-primary" %>
-<% end %>
+  <%= form_tag standard_import_path, multipart: true do %>
+    <%= file_field_tag :file, class: "btn btn-primary choose-file" %>
+    <%= submit_tag "Import Standard Students", class: "submit-button btn btn-primary btn-lg" %>
+  <% end %>
+</div>

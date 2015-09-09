@@ -42,11 +42,15 @@ angular.module('bus_routes.markers', [])
     // If not, return the id of the student with a marker at 
     // that location. 
     model.checkForSibling = function(lat, lng) {
+      var latitude = parseFloat(lat).toFixed(4);
+      var longitude = parseFloat(lng).toFixed(4);
       var matching = false;
       if (existingStudentMarkers.length !== 0) { // Only check if there are existing markers.
         // Iterate through array looking for existing lat and long
         for (i = 0; i < existingStudentMarkers.length; i++) {
-          if (lat === existingStudentMarkers[i][0] && lng === existingStudentMarkers[i][1]) {
+          var existingMarkerLat = parseFloat(existingStudentMarkers[i][0]).toFixed(4);
+          var existingMarkerLng = parseFloat(existingStudentMarkers[i][1]).toFixed(4);
+          if (latitude === existingMarkerLat && longitude === existingMarkerLng) {
              matching = existingStudentMarkers[i][2]; // If there's a match, set matching value to id of student with matching location.
           } 
         }
@@ -163,6 +167,8 @@ angular.module('bus_routes.markers', [])
        marker.label = markerLabel.toString(); // Update the label value.
        marker.siblings.push(student.id); // Add the student to the siblings array 
        marker.windowContent += student.first_name + " " + student.school + " " + student.grade + "<br>"; // Update the sibling's window content to include this students info.
+       marker.setMap(null);
+       marker.setMap($scope.shared.map);
     };
 
     // Creates a new marker.

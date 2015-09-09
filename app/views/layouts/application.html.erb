@@ -8,16 +8,23 @@
   <%= csrf_meta_tags %>
 </head>
 <body>
-  <%= link_to "Bus Routes Home", root_path %>
-  <% if user_signed_in? %>
-    Logged in as <%= current_user.email %>
-    <%= link_to "Log Out", destroy_user_session_path, method: :delete %>
-    <%= link_to "Import Students", new_import_path %>
-  <% else %>
-    <%= link_to "Sign Up", new_user_registration_path %>
-    <%= link_to "Log In", new_user_session_path %>
-  <% end %>
+  <div id="header">
+    <h1><%= link_to "BUS ROUTES", root_path %></h1>
+    <div class="header-links">
+      <% if user_signed_in? %>
+        <span>Logged in as <%= current_user.email %></span>
+        <%= link_to "Log Out", destroy_user_session_path, method: :delete, class: "btn btn-warning btn-lg" %>
+        <%= link_to "Import Students", new_import_path, class: "btn btn-warning btn-lg import-students-button" %>
+        <%= link_to "Manage Students", manage_students_path, class: "btn btn-warning btn-lg" %></h1> 
+      <% else %>
+        <%= link_to "Sign Up", new_user_registration_path, class: "btn btn-warning btn-lg signup-button" %>
+        <%= link_to "Log In", new_user_session_path, class: "btn btn-warning btn-lg login-button" %>
+      <% end %>
+    </div>
+  </div>
   <%= render 'layouts/flash' %>
-  <%= yield %>
+  <div class="main-content">
+    <%= yield %>
+  </div>
 </body>
 </html>
