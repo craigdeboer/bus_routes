@@ -152,7 +152,8 @@
           <label>Postal Code:</label><input class="form-control" type="text" ng-model="selectedStudent.postal_code">
           <label>Comments:</label><br>
           <textarea ng-model="selectedStudent.comments"></textarea> <br>
-          <input class="btn btn-primary" id="save-changes-button" type="submit" value="Save Changes">
+          <input ng-click="includeSiblings = true" class="btn btn-primary" id="save-changes-button" type="submit" value="Save Changes To Student And All Siblings">
+          <button class="btn btn-primary" id="save-student-only" ng-click="updateStudent()">Only Save Changes To This Student</button>
           <button class="btn btn-success" id="close-without-saving" ng-click="showEdit = false">Close Without Saving</button>
         </div>
       </form>

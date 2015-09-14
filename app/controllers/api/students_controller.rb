@@ -7,6 +7,8 @@ module Api
     end
 
     def show
+      student = Student.find(params[:id])
+      render json: student, status: 201
     end
 
     def new
@@ -28,7 +30,7 @@ module Api
     def update
       student = Student.find(params[:id])
       student.update(student_params)
-      render nothing: true, status: 201
+      render json: student, status: 201
     end
 
     def destroy

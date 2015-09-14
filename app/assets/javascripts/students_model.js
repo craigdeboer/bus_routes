@@ -37,8 +37,8 @@ angular.module('bus_routes.models.students', ["ngResource"])
 
     // Update the student in the database and the students array.
     model.updateStudent = function(student) {
-      Student.update(student);
-      var updatedStudent = model.findStudent(student.id);
+      var updatedStudent = Student.update(student);
+      model.findStudent(updatedStudent.id);
       students.splice(index, 1, updatedStudent);
     };
 
@@ -55,6 +55,16 @@ angular.module('bus_routes.models.students', ["ngResource"])
         }
       }
       return student;
+    };
+    model.findSiblings = function(last_name, original_address) {
+      var siblingsArray = [];
+      for(i = 0; i < students.length; i++) {
+        var student = students[i];
+        if (student.last_name === last_name && student.street_address === original_address) {
+          siblingsArray.push(student.id);
+        }
+      }
+      return siblingsArray;
     };
   }])
 ;

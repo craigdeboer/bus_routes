@@ -5,6 +5,7 @@ angular.module('bus_routes.students', [])
     $scope.shared = Shared;
     $scope.formDisplay = false;
     $scope.showDetails = false;
+    $scope.includeSiblings = false;
     $scope.firstOrderSelection = "last_name";
     loadStudents();
     
@@ -73,8 +74,8 @@ angular.module('bus_routes.students', [])
       // to determine if they were edited or not.
       var student = $scope.selectedStudent;
       student.original_address = student.street_address;
-      student.original_city = student.city;
-      student.original_postal_code = student.postal_code;
+//      student.original_city = student.city;
+//      student.original_postal_code = student.postal_code;
       
       $scope.showEdit = true; // Show the edit form.
     };
@@ -82,53 +83,97 @@ angular.module('bus_routes.students', [])
     // Update the student with the values from the edit student form.
     function updateStudent() {
       var student = $scope.selectedStudent;
-      StudentsModel.updateStudent(student);
-      loadStudents();
-      if (anyChanges(student)) { // Detect any changes to student's address
-        geocodeStudent(student); // If there are changes, geocode the student
+      if ($scope.includeSiblings === true) {
+        updateSiblings(student);
       }
+      var updatedStudent = StudentsModel.updateStudent(student);
+      updateMarkerPosition(student.id);
+      loadStudents();
+//      if (anyChanges(student)) { // Detect any changes to student's address
+//        geocodeStudent(student); // If there are changes, geocode the student
+//      }
       $scope.showEdit = false;
+      $scope.includeSiblings = false;
     };
+    
+    function updateSiblings(student) {
+      siblingsArray = StudentsModel.findSiblings(student.last_name, student.original_address);
+      angular.forEach(siblingsArray, function(siblingId) {
+        var sibling = StudentsModel.findStudent(siblingId);
+        sibling.phone = student.phone;
+        sibling.email = student.email;
+        sibling.street_address = student.street_address;
+        sibling.city = student.city;
+        sibling.postal_code = student.postal_code;
+        sibling.additional_phones = student.additional_phones;
+        sibling.additional_email = student.additional_email;
+        sibling.parent_names = student.parent_names;
+        sibling.bus_route = student.bus_route;
+        sibling.return_trip = student.return_trip;
+        sibling.stop = student.stop;
+        sibling.mon_thurs = student.mon_thurs;
+        sibling.friday = student.friday;
+        StudentsModel.updateStudent(sibling);
+      }); 
+    };
+
     
     // Returns true if either address, city, or postal code has been changed.
     // If any of these are changed, the students lat/lng need to be updated.
-    function anyChanges(student) {
-      var addressChanged = student.original_address !== student.street_address;
-      var cityChanged = student.original_city !== student.city;
-      var postalCodeChanged = student.original_postal_code !== student.postal_code;
-      return addressChanged || cityChanged || postalCodeChanged; 
+//    function anyChanges(student) {
+//      var addressChanged = student.original_address !== student.street_address;
+//      var cityChanged = student.original_city !== student.city;
+//      var postalCodeChanged = student.original_postal_code !== student.postal_code;
+//      return addressChanged || cityChanged || postalCodeChanged; 
+//    };
+
+    function updateMarkerPosition(studentId) {
+      var marker = StudentMarkers.getMarker(studentId);
+      setTimeout(function (){
+      student = StudentsModel.findStudent(studentId);
+      if (marker) {
+        var studentLatLng = new google.maps.LatLng(student.latitude, student.longitude);
+        marker.position = studentLatLng;
+        marker.windowContent += "Address Changed To: " + student.street_address;
+        marker.setMap(null);
+        marker.setMap($scope.shared.map);
+      }
+      }, 2000);
     };
+
+
+
 
     // Geocodes the student based on their updated address info
     // Changes their marker position and infoWindow content to 
     // match the changes.
-    function geocodeStudent(student) {
-      var address = composeAddress(student);
-      var geocoder = new google.maps.Geocoder();
-      geocoder.geocode( {'address':address}, function(results, status) {
-        if (status === google.maps.GeocoderStatus.OK) {
-          var marker = StudentMarkers.findMarker(student.id);
-          if (marker) {
-            marker.windowContent += "Address Changed To: " + student.street_address;
-            marker.position = results[0].geometry.location;
-            marker.setMap(null);
-            marker.setMap($scope.shared.map);
-          }
-          student.updatedLocation = results[0].geometry.location;
-        } else {
-          alert("Student marker update wasn't successful for the following reason: " + status);
-        }
-      });
-    };
+//    function geocodeStudent(student) {
+//      var address = composeAddress(student);
+//      var geocoder = new google.maps.Geocoder();
+//      geocoder.geocode( {'address':address}, function(results, status) {
+//        if (status === google.maps.GeocoderStatus.OK) {
+//          var marker = StudentMarkers.findMarker(student.id);
+//          if (marker) {
+//            marker.windowContent += "Address Changed To: " + student.street_address;
+//            marker.position = results[0].geometry.location;
+//            marker.setMap(null);
+//            marker.setMap($scope.shared.map);
+//          }
+//          student.updatedLocation = results[0].geometry.location;
+//        } else {
+//          alert("Student marker update wasn't successful for the following reason: " + status);
+//        }
+//      });
+//    };
 
     // Returns the address to be used for the geocodeStudent function.
-    function composeAddress(student) {
-      if (student.postal_code === null) {
-        student.postal_code = " ";
-      }
-      var address = student.street_address + "," + student.city + "," + "BC" + " " + student.postal_code;
-      return address;
-    };
+//    function composeAddress(student) {
+//      if (student.postal_code === null) {
+//        student.postal_code = " ";
+//      }
+//      var address = student.street_address + "," + student.city + "," + "BC" + " " + student.postal_code;
+//      return address;
+//    };
 
     // Calculates the number of seats occupied by the students selected using the 
     // filters. This will be commonly used when filtering by bus route number.
