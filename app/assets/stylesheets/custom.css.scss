@@ -66,6 +66,16 @@
 
 /*** Manage Students Page ***/
 
+#goto-top {
+  position: fixed;
+  top: 150px;
+  right: 0;
+}
+#goto-map {
+  position: fixed;
+  top: 175px;
+  right: 0;
+}
 .search-box {
   font-size: 16px;
   input {
@@ -126,18 +136,22 @@ tr:nth-child(even) {
 /*** Add Student Form ***/
 
 #add-new-student-button,
-#add-student-submit,
-#finished-adding-button {
+#add-student-submit {
   margin-top: 20px;
+}
+#finished-adding-button {
+  margin-bottom: 20px;
 }
 #add-new-student-button {
   display: block;
+  margin-bottom: 20px;
 }
 #add-student-form {
   display: inline-block;
   vertical-align: top;
   width: 30%;
-  input {
+  input,
+  button {
     width: 70%;
   }
 }
@@ -166,9 +180,7 @@ tr:nth-child(even) {
 /*** Student Details List ***/
 
 #details-list {
-  width: 30%;
-  display: inline-block;
-  vertical-align: top;
+  width: 100%;
 }
 #hide-details-button {
   margin-top: 20px;

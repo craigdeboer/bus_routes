@@ -1,6 +1,6 @@
 angular.module('bus_routes.students', [])
   
-  .controller('StudentCrudCtrl', ["$scope", "Shared", "StudentsModel", "StudentMarkers", function($scope, Shared, StudentsModel, StudentMarkers) {
+  .controller('StudentCrudCtrl', ["$scope", "$location", "$anchorScroll", "Shared", "StudentsModel", "StudentMarkers", function($scope, $location, $anchorScroll, Shared, StudentsModel, StudentMarkers) {
     
     $scope.shared = Shared;
     $scope.formDisplay = false;
@@ -8,6 +8,7 @@ angular.module('bus_routes.students', [])
     $scope.includeSiblings = false;
     $scope.firstOrderSelection = "last_name";
     loadStudents();
+    $location.hash(null);
     
     // Define scoped functions.
     $scope.deleteRouteFilter = deleteRouteFilter;
@@ -19,6 +20,17 @@ angular.module('bus_routes.students', [])
     $scope.showForm = showForm;
     $scope.hideForm = hideForm;
     $scope.seatsFilled = seatsFilled;
+    $scope.gotoTop = gotoTop;
+    $scope.gotoMap = gotoMap;
+    
+    function gotoTop() {
+      $anchorScroll('add-new-student-button');
+    };
+    
+    function gotoMap() {
+      $anchorScroll('map-canvas');
+    };
+
     
     // This function is called when the Route Filter is changed and deletes the value
     // if All Routes are selected. If $scope.Route is not deleted, students with
@@ -37,7 +49,11 @@ angular.module('bus_routes.students', [])
     // Show the student's details when their "Details" button is clicked.
     function showStudent(studentId) {
       $scope.detailStudent = StudentsModel.findStudent(studentId);
-      $scope.showDetails = true;
+      var content = window.document.getElementById("details-list"); // get the student details
+      var detailsWindow = window.open("", "", "width=300, height=600");
+      setTimeout(function() {
+        detailsWindow.document.write(content.innerHTML); // write the student details into the new window
+      }, 250);
     };
 
     // Add a student with attribute values from the NewStudent object.
@@ -46,6 +62,7 @@ angular.module('bus_routes.students', [])
       StudentsModel.addStudent($scope.NewStudent);
       loadStudents();
       $scope.NewStudent = {};
+      gotoTop();
     };
     
     // Show the Add Student form.
@@ -78,6 +95,7 @@ angular.module('bus_routes.students', [])
 //      student.original_postal_code = student.postal_code;
       
       $scope.showEdit = true; // Show the edit form.
+      gotoTop();
     };
       
     // Update the student with the values from the edit student form.
@@ -94,6 +112,7 @@ angular.module('bus_routes.students', [])
 //      }
       $scope.showEdit = false;
       $scope.includeSiblings = false;
+      gotoTop();
     };
     
     function updateSiblings(student) {
