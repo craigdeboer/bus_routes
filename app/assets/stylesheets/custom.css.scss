@@ -155,13 +155,24 @@ tr:nth-child(even) {
     width: 70%;
   }
 }
+#add-siblings {
+  display: inline-block;
+  vertical-align: top;
+  width: 25%;
+  input {
+    width: 70%;
+  }
+  .add-sibling-button {
+    margin: 20px 0;
+  }
+}
 
 /*** Edit Student Form ***/
 
 #edit-student-form {
   vertical-align: top;
   display: inline-block;
-  width: 30%;
+  width: 25%;
   input {
     width: 70%;
   }

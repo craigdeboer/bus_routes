@@ -60,11 +60,27 @@ angular.module('bus_routes.students', [])
     // *** Need to add some validations ***.
     function addNewStudent() {
       StudentsModel.addStudent($scope.NewStudent);
+      addNewSiblings();
       loadStudents();
       $scope.NewStudent = {};
       gotoTop();
     };
     
+    function addNewSiblings() {
+      if ($scope.sibling1) {
+        var firstSibling = angular.copy($scope.NewStudent);
+        firstSibling.first_name = $scope.sibling1.first_name;
+        firstSibling.school = $scope.sibling1.school;
+        firstSibling.grade = $scope.sibling1.grade;
+        StudentsModel.addStudent(firstSibling);
+        $scope.sibling1 = null;
+      }
+        
+    };
+
+
+
+
     // Show the Add Student form.
     function showForm() {
       $scope.formDisplay = true;

@@ -3,32 +3,45 @@
     <button id="goto-top" class="btn btn-primary btn-xs" ng-click="gotoTop()">Top</button>
     <button id="goto-map" class="btn btn-primary btn-xs" ng-click="gotoMap()">Map</button>
     <button id="add-new-student-button" class="btn btn-primary" ng-hide="formDisplay" ng-click="showForm()">Add A New Student</button>
-    <form id="add-student-form" ng-cloak ng-show="formDisplay">
-      <h1>Adding A New Student</h1>
-      <div class="form-group">
-        <input class="form-control" type="text" placeholder="First Name" ng-model="NewStudent.first_name">
-        <input class="form-control" type="text" placeholder="Last Name" ng-model="NewStudent.last_name">
-        <input class="form-control" type="text" placeholder="School" ng-model="NewStudent.school">
-        <input class="form-control" type="text" placeholder="Grade" ng-model="NewStudent.grade">
-        <input class="form-control" type="text" placeholder="Phone Number" ng-model="NewStudent.phone">
-        <input class="form-control" type="text" placeholder="Additional Phone" ng-model="NewStudent.additional_phones">
-        <input class="form-control" type="text" placeholder="Email Address" ng-model="NewStudent.email">
-        <input class="form-control" type="text" placeholder="Additional Email" ng-model="NewStudent.additional_email">
-        <input class="form-control" type="text" placeholder="Street Address" ng-model="NewStudent.street_address">
-        <input class="form-control" type="text" placeholder="City" ng-model="NewStudent.city">
-        <input class="form-control" type="text" placeholder="Postal Code" ng-model="NewStudent.postal_code">
-        <input class="form-control" type="text" placeholder="Bus Route" ng-model="NewStudent.bus_route">
-        <input class="form-control" type="text" placeholder="Stop" ng-model="NewStudent.stop">
-        <input class="form-control" type="text" placeholder="Mon-Thurs Time" ng-model="NewStudent.mon_thurs">
-        <input class="form-control" type="text" placeholder="Friday Time" ng-model="NewStudent.friday">
-        <input class="form-control" type="text" placeholder="1 or 2 Way" ng-model="NewStudent.return_trip">
-        <input class="form-control" type="text" placeholder="Parent Names" ng-model="NewStudent.parent_names">
-        <input class="form-control" type="text" placeholder="Comments" ng-model="NewStudent.comments">
-        <input class="btn btn-primary" id="add-student-submit" ng-click="addNewStudent()" type="submit" value="Add New Student">
+    <div ng-cloak ng-show="formDisplay">
+      <form id="add-student-form">
+        <h2>Adding A New Student</h2>
+        <div class="form-group">
+          <input class="form-control" type="text" placeholder="First Name" ng-model="NewStudent.first_name">
+          <input class="form-control" type="text" placeholder="Last Name" ng-model="NewStudent.last_name">
+          <input class="form-control" type="text" placeholder="School" ng-model="NewStudent.school">
+          <input class="form-control" type="text" placeholder="Grade" ng-model="NewStudent.grade">
+          <input class="form-control" type="text" placeholder="Phone Number" ng-model="NewStudent.phone">
+          <input class="form-control" type="text" placeholder="Additional Phone" ng-model="NewStudent.additional_phones">
+          <input class="form-control" type="text" placeholder="Email Address" ng-model="NewStudent.email">
+          <input class="form-control" type="text" placeholder="Additional Email" ng-model="NewStudent.additional_email">
+          <input class="form-control" type="text" placeholder="Street Address" ng-model="NewStudent.street_address">
+          <input class="form-control" type="text" placeholder="City" ng-model="NewStudent.city">
+          <input class="form-control" type="text" placeholder="Postal Code" ng-model="NewStudent.postal_code">
+          <input class="form-control" type="text" placeholder="Bus Route" ng-model="NewStudent.bus_route">
+          <input class="form-control" type="text" placeholder="Stop" ng-model="NewStudent.stop">
+          <input class="form-control" type="text" placeholder="Mon-Thurs Time" ng-model="NewStudent.mon_thurs">
+          <input class="form-control" type="text" placeholder="Friday Time" ng-model="NewStudent.friday">
+          <input class="form-control" type="text" placeholder="1 or 2 Way" ng-model="NewStudent.return_trip">
+          <input class="form-control" type="text" placeholder="Parent Names" ng-model="NewStudent.parent_names">
+          <input class="form-control" type="text" placeholder="Comments" ng-model="NewStudent.comments">
+          <input class="btn btn-primary" id="add-student-submit" ng-click="addNewStudent()" type="submit" value="Add New Student">
+        </div>
+        <button class="btn btn-success" id="finished-adding-button" ng-cloak ng-show="formDisplay" ng-click="hideForm()">Finished Adding Students</button>
+      </form>
+      <div id="add-siblings">
+        <h2>Add Siblings (optional)</h2>
+        <button class="btn btn-primary add-sibling-button" ng-click="showSibling1 = true">Add Sibling #1</button>
+        <form ng-show="showSibling1">
+          <div class="form-group">
+              <input class="form-control" type="text" placeholder="First Name" ng-model="sibling1.first_name">
+              <input class="form-control" type="text" placeholder="School" ng-model="sibling1.school">
+              <input class="form-control" type="text" placeholder="Grade" ng-model="sibling1.grade">
+          </div>
+        </form>
       </div>
-      <button class="btn btn-success" id="finished-adding-button" ng-cloak ng-show="formDisplay" ng-click="hideForm()">Finished Adding Students</button>
-    </form>
-      <form id="edit-student-form"  ng-cloak ng-show="showEdit" ng-submit="updateStudent()" >
+    </div>
+      <form id="edit-student-form"  ng-cloak ng-show="showEdit">
         <h1>Edit Student</h1>
         <div class="form-group">
           <label>First Name:</label><input class="form-control" type="text" ng-model="selectedStudent.first_name">
@@ -50,9 +63,9 @@
           <label>Postal Code:</label><input class="form-control" type="text" ng-model="selectedStudent.postal_code">
           <label>Comments:</label><br>
           <textarea ng-model="selectedStudent.comments"></textarea> <br>
-          <input ng-click="includeSiblings = true" class="btn btn-primary" id="save-changes-button" type="submit" value="Save Changes To Student And All Siblings">
+          <button ng-click="includeSiblings = true; updateStudent()" class="btn btn-primary" id="save-changes-button">Save Changes To Student And All Siblings</button>
           <button class="btn btn-primary" id="save-student-only" ng-click="updateStudent()">Only Save Changes To This Student</button>
-          <button class="btn btn-success" id="close-without-saving" ng-click="showEdit = false">Close Without Saving</button>
+          <button class="btn btn-success" id="close-without-saving" ng-click="showEdit = false; gotoTop()">Close Without Saving</button>
         </div>
       </form>
       <div class="search-box">
