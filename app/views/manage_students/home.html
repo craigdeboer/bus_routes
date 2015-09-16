@@ -1,7 +1,7 @@
 <div class="container-fluid" ng-app="busRoutesApp">
   <div class="col-md-12" ng-controller="StudentCrudCtrl">
-    <button id="goto-top" class="btn btn-primary btn-xs" ng-click="gotoTop()">Top</button>
-    <button id="goto-map" class="btn btn-primary btn-xs" ng-click="gotoMap()">Map</button>
+    <button id="goto-top" class="btn btn-primary" ng-click="gotoTop()">Top</button>
+    <button id="goto-map" class="btn btn-primary" ng-click="gotoMap()">Map</button>
     <button id="add-new-student-button" class="btn btn-primary" ng-hide="formDisplay" ng-click="showForm()">Add A New Student</button>
     <div ng-cloak ng-show="formDisplay">
       <form id="add-student-form">
@@ -31,12 +31,37 @@
       </form>
       <div id="add-siblings">
         <h2>Add Siblings (optional)</h2>
-        <button class="btn btn-primary add-sibling-button" ng-click="showSibling1 = true">Add Sibling #1</button>
-        <form ng-show="showSibling1">
+        <button class="btn btn-primary add-sibling-button" ng-hide="showSiblings" ng-click="showSiblings = true">Add Siblings</button>
+        <form ng-show="showSiblings">
+          <h2>Sibling 1</h2>
           <div class="form-group">
-              <input class="form-control" type="text" placeholder="First Name" ng-model="sibling1.first_name">
-              <input class="form-control" type="text" placeholder="School" ng-model="sibling1.school">
-              <input class="form-control" type="text" placeholder="Grade" ng-model="sibling1.grade">
+            <input class="form-control" type="text" placeholder="First Name" ng-model="sibling1.first_name">
+            <input class="form-control" type="text" placeholder="School" ng-model="sibling1.school">
+            <input class="form-control" type="text" placeholder="Grade" ng-model="sibling1.grade">
+          </div>
+        </form>
+        <form ng-show="showSiblings">
+          <h2>Sibling 2</h2>
+          <div class="form-group">
+            <input class="form-control" type="text" placeholder="First Name" ng-model="sibling2.first_name">
+            <input class="form-control" type="text" placeholder="School" ng-model="sibling2.school">
+            <input class="form-control" type="text" placeholder="Grade" ng-model="sibling2.grade">
+          </div>
+        </form>
+        <form ng-show="showSiblings">
+          <h2>Sibling 3</h2>
+          <div class="form-group">
+            <input class="form-control" type="text" placeholder="First Name" ng-model="sibling3.first_name">
+            <input class="form-control" type="text" placeholder="School" ng-model="sibling3.school">
+            <input class="form-control" type="text" placeholder="Grade" ng-model="sibling3.grade">
+          </div>
+        </form>
+        <form ng-show="showSiblings">
+          <h2>Sibling 4</h2>
+          <div class="form-group">
+            <input class="form-control" type="text" placeholder="First Name" ng-model="sibling4.first_name">
+            <input class="form-control" type="text" placeholder="School" ng-model="sibling4.school">
+            <input class="form-control" type="text" placeholder="Grade" ng-model="sibling4.grade">
           </div>
         </form>
       </div>

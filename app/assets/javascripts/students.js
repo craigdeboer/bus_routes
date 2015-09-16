@@ -67,6 +67,7 @@ angular.module('bus_routes.students', [])
     };
     
     function addNewSiblings() {
+      console.log($scope.sibling1);
       if ($scope.sibling1) {
         var firstSibling = angular.copy($scope.NewStudent);
         firstSibling.first_name = $scope.sibling1.first_name;
@@ -74,6 +75,30 @@ angular.module('bus_routes.students', [])
         firstSibling.grade = $scope.sibling1.grade;
         StudentsModel.addStudent(firstSibling);
         $scope.sibling1 = null;
+      }
+      if ($scope.sibling2) {
+        var secondSibling = angular.copy($scope.NewStudent);
+        secondSibling.first_name = $scope.sibling2.first_name;
+        secondSibling.school = $scope.sibling2.school;
+        secondSibling.grade = $scope.sibling2.grade;
+        StudentsModel.addStudent(secondSibling);
+        $scope.sibling2 = null;
+      }
+      if ($scope.sibling3) {
+        var thirdSibling = angular.copy($scope.NewStudent);
+        thirdSibling.first_name = $scope.sibling3.first_name;
+        thirdSibling.school = $scope.sibling3.school;
+        thirdSibling.grade = $scope.sibling3.grade;
+        StudentsModel.addStudent(thirdSibling);
+        $scope.sibling3 = null;
+      }
+      if ($scope.sibling4) {
+        var fourthSibling = angular.copy($scope.NewStudent);
+        fourthSibling.first_name = $scope.sibling4.first_name;
+        fourthSibling.school = $scope.sibling4.school;
+        fourthSibling.grade = $scope.sibling4.grade;
+        StudentsModel.addStudent(fourthSibling);
+        $scope.sibling4 = null;
       }
         
     };
