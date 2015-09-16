@@ -8,7 +8,7 @@ angular.module('bus_routes.students', [])
     $scope.includeSiblings = false;
     $scope.firstOrderSelection = "last_name";
     loadStudents();
-    $location.hash(null);
+    $location.hash(null); // Necessary to prevent scrolling down on page load.
     
     // Define scoped functions.
     $scope.deleteRouteFilter = deleteRouteFilter;
@@ -23,10 +23,12 @@ angular.module('bus_routes.students', [])
     $scope.gotoTop = gotoTop;
     $scope.gotoMap = gotoMap;
     
+    // Scrolls to the top of the page when "Top" button is clicked.
     function gotoTop() {
       $anchorScroll('add-new-student-button');
     };
     
+    // Scrolls to the map when the "Map" button is clicked.
     function gotoMap() {
       $anchorScroll('map-canvas');
     };
@@ -49,10 +51,12 @@ angular.module('bus_routes.students', [])
     // Show the student's details when their "Details" button is clicked.
     function showStudent(studentId) {
       $scope.detailStudent = StudentsModel.findStudent(studentId);
-      var content = window.document.getElementById("details-list"); // get the student details
-      var detailsWindow = window.open("", "", "width=300, height=600");
-      setTimeout(function() {
-        detailsWindow.document.write(content.innerHTML); // write the student details into the new window
+      var content = window.document.getElementById("details-list"); // Get the student details
+      var detailsWindow = window.open("", "", "width=300, height=600"); // Open a new window.
+      // Without this timeout the detailStudent data doesn't show the first time a details button is clicked.
+      // Need to find an alternate solution as this is hacky.
+      setTimeout(function() { 
+        detailsWindow.document.write(content.innerHTML); // Write the student details into the new window
       }, 250);
     };
 
@@ -66,16 +70,18 @@ angular.module('bus_routes.students', [])
       gotoTop();
     };
     
+    // Add siblings if data is provided beside the add new student form.
     function addNewSiblings() {
-      console.log($scope.sibling1);
-      if ($scope.sibling1) {
-        var firstSibling = angular.copy($scope.NewStudent);
-        firstSibling.first_name = $scope.sibling1.first_name;
+      if ($scope.sibling1) { // If the object isn't null.
+        var firstSibling = angular.copy($scope.NewStudent); // Make a copy of the NewStudent.
+        firstSibling.first_name = $scope.sibling1.first_name; // Change the name, school, and grade to reflect the user entered values.
         firstSibling.school = $scope.sibling1.school;
         firstSibling.grade = $scope.sibling1.grade;
-        StudentsModel.addStudent(firstSibling);
-        $scope.sibling1 = null;
+        StudentsModel.addStudent(firstSibling); // Save the sibling.
+        $scope.sibling1 = null; // Set the object to null so it's ready for the next new student.
       }
+      // Repeat what was done for the first sibling.
+      // *** There must be a way to do this with a loop in combination with an ng-repeat in the view.
       if ($scope.sibling2) {
         var secondSibling = angular.copy($scope.NewStudent);
         secondSibling.first_name = $scope.sibling2.first_name;
@@ -100,11 +106,7 @@ angular.module('bus_routes.students', [])
         StudentsModel.addStudent(fourthSibling);
         $scope.sibling4 = null;
       }
-        
     };
-
-
-
 
     // Show the Add Student form.
     function showForm() {
@@ -132,9 +134,6 @@ angular.module('bus_routes.students', [])
       // to determine if they were edited or not.
       var student = $scope.selectedStudent;
       student.original_address = student.street_address;
-//      student.original_city = student.city;
-//      student.original_postal_code = student.postal_code;
-      
       $scope.showEdit = true; // Show the edit form.
       gotoTop();
     };
@@ -148,19 +147,17 @@ angular.module('bus_routes.students', [])
       var updatedStudent = StudentsModel.updateStudent(student);
       updateMarkerPosition(student.id);
       loadStudents();
-//      if (anyChanges(student)) { // Detect any changes to student's address
-//        geocodeStudent(student); // If there are changes, geocode the student
-//      }
       $scope.showEdit = false;
       $scope.includeSiblings = false;
       gotoTop();
     };
     
+    // Update siblings when a student's information is changed.
     function updateSiblings(student) {
-      siblingsArray = StudentsModel.findSiblings(student.last_name, student.original_address);
-      angular.forEach(siblingsArray, function(siblingId) {
+      siblingsArray = StudentsModel.findSiblings(student.last_name, student.original_address); // This populates an array with a student's siblings based on last name and address.
+      angular.forEach(siblingsArray, function(siblingId) { // Iterate through the array of sibling Id's.
         var sibling = StudentsModel.findStudent(siblingId);
-        sibling.phone = student.phone;
+        sibling.phone = student.phone; // Set all the common attributes to the edited student's values.
         sibling.email = student.email;
         sibling.street_address = student.street_address;
         sibling.city = student.city;
@@ -173,23 +170,15 @@ angular.module('bus_routes.students', [])
         sibling.stop = student.stop;
         sibling.mon_thurs = student.mon_thurs;
         sibling.friday = student.friday;
-        StudentsModel.updateStudent(sibling);
+        StudentsModel.updateStudent(sibling); // Save the changes to the sibling.
       }); 
     };
 
-    
-    // Returns true if either address, city, or postal code has been changed.
-    // If any of these are changed, the students lat/lng need to be updated.
-//    function anyChanges(student) {
-//      var addressChanged = student.original_address !== student.street_address;
-//      var cityChanged = student.original_city !== student.city;
-//      var postalCodeChanged = student.original_postal_code !== student.postal_code;
-//      return addressChanged || cityChanged || postalCodeChanged; 
-//    };
-
     function updateMarkerPosition(studentId) {
       var marker = StudentMarkers.getMarker(studentId);
-      setTimeout(function (){
+      // Need this to give the update method in StudentsModel time to get the new lat and lng from the geocoding process that happens on the back end.
+      // *** Should be able to handle this with a promise instead of this hacky timeout.
+      setTimeout(function (){ 
       student = StudentsModel.findStudent(studentId);
       if (marker) {
         var studentLatLng = new google.maps.LatLng(student.latitude, student.longitude);
@@ -200,40 +189,6 @@ angular.module('bus_routes.students', [])
       }
       }, 2000);
     };
-
-
-
-
-    // Geocodes the student based on their updated address info
-    // Changes their marker position and infoWindow content to 
-    // match the changes.
-//    function geocodeStudent(student) {
-//      var address = composeAddress(student);
-//      var geocoder = new google.maps.Geocoder();
-//      geocoder.geocode( {'address':address}, function(results, status) {
-//        if (status === google.maps.GeocoderStatus.OK) {
-//          var marker = StudentMarkers.findMarker(student.id);
-//          if (marker) {
-//            marker.windowContent += "Address Changed To: " + student.street_address;
-//            marker.position = results[0].geometry.location;
-//            marker.setMap(null);
-//            marker.setMap($scope.shared.map);
-//          }
-//          student.updatedLocation = results[0].geometry.location;
-//        } else {
-//          alert("Student marker update wasn't successful for the following reason: " + status);
-//        }
-//      });
-//    };
-
-    // Returns the address to be used for the geocodeStudent function.
-//    function composeAddress(student) {
-//      if (student.postal_code === null) {
-//        student.postal_code = " ";
-//      }
-//      var address = student.street_address + "," + student.city + "," + "BC" + " " + student.postal_code;
-//      return address;
-//    };
 
     // Calculates the number of seats occupied by the students selected using the 
     // filters. This will be commonly used when filtering by bus route number.
